@@ -1,0 +1,119 @@
+---
+title: "validation-and-speed-check"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{validation-and-speed-check}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+# Introduction
+This vignette compares the results of the examples shown in the userguide with
+a long-hand version created in MS Excel.  All excel files are available at ...
+Note the Excel files are saved as macro-enabled files (*.xlsm) as the 
+probabilistic analyses contain VBA code.  Deterministic analyses do not contain
+code but are still saved as .xlsm for consistency.
+
+For probabilistic analyses, a set of 10,000 sampled inputs is created in R with 
+the stated number seed.  These are copied and pasted into excel, and VBA code 
+used to calculate model results.  These are compared with the results generated
+by R.  The computation time for each is reported.  Computation times in R with 
+larger numbers of simulations are also reported.
+
+# Computer spec
+Analyses were conducted on an Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz with 8
+cores, running Windows 10 x64 with 24GB RAM:
+```{r setup}
+devtools::session_info()
+```
+
+# Test of Example code
+## Example 1a
+See file Example1a.xlsm
+Difference in Markov traces = 0.  
+Difference in total discounted QALYs = -2.1E-16.
+Difference in total discounted costs = 0
+
+Trivial differences in estimation of discounted QALYs and costs in some 
+transition periods and total QALYs (at 16th and 13th significant figure 
+respectively).  Most likely due to rounding errors.
+
+## Example 1b
+See file Example1b.xlsm
+Difference in Markov traces = 0.  
+Difference in total discounted QALYs = 0
+Difference in total discounted costs = 0
+
+Minor differences in estimation of discounted QALYs and costs (at 16th and 13th 
+significant figure respectively).  Most likely due to rounding errors.
+
+## Example 2a
+See file Example2a.xlsm
+Difference in Markov traces = 0.  
+Difference in total discounted QALYs = 0
+Difference in total discounted costs = 0
+
+Minor difference in estimation of discounted cost in cycle 3 (at 13th 
+significant figure).  Most likely due to rounding error.
+
+## Example 2b
+See file Example2b.xlsm
+Difference in Markov traces = 0.  
+Difference in total discounted QALYs = 0
+Difference in total discounted costs = 0
+
+Minor difference in estimation of discounted cost in cycle 3 (at 13th 
+significant figure).  Most likely due to rounding error.
+
+## Example 3
+(these examples illustrate use of converttomatrices() helper function)
+
+##Example 4a
+See file Example4a.xlsm
+three state, 10 cycle stationary model.
+Maximum difference in mean discounted QALYs = <0.0000001
+Maximum difference in mean discounted costs = <0.0000001
+SD of difference in mean discounted QALYs = 2.4E-15
+SD of difference in mean discounted costs = 3.3E-12
+
+Computation time, 10,000 iterations:
+MS Excel: 3 mins 27 seconds.
+R (single core): 3.46 seconds.
+R (8 cores):     
+
+
+100,000 iterations (single core):              35.05 seconds.
+100,000 iterations, 20 cycles (single core):   53.50 seconds.
+1,000,000 iterations, 10 cycles (single core): 5 mins 9 seconds.
+1,000,000 iterations, 20 cycles (single core): 8 mins 48 seconds.
+100,000 iterations (8 cores):                  
+100,000 iterations, 20 cycles (8 cores):       
+1,000,000 iterations, 10 cycles (8 cores):     
+1,000,000 iterations, 20 cycles (8 cores):     
+
+##Example 4b
+See file Example4a.xlsm
+three state, 10 cycle non-stationary model.
+Maximum difference in mean discounted QALYs = 
+Maximum difference in mean discounted costs = 
+SD of difference in mean discounted QALYs = 
+SD of difference in mean discounted costs = 
+
+Computation time, 10,000 iterations:
+MS Excel: 
+R (single core): 3.81 seconds
+
+100,000 iterations (single core):              34.30 seconds
+100,000 iterations, 20 cycles (single core):   
+1,000,000 iterations, 10 cycles (single core): 6.088 mins
+1,000,000 iterations, 20 cycles (single core): 
+100,000 iterations (8 cores):                  
+100,000 iterations, 20 cycles (8 cores):       
+1,000,000 iterations, 10 cycles (8 cores):     
+1,000,000 iterations, 20 cycles (8 cores):     

@@ -1,0 +1,702 @@
+---
+title: "rrapidmarkov: User Guide"
+author: "Ed Wilson"
+date: "`r Sys.Date()`"
+
+output: 
+  rmarkdown::html_vignette: 
+    toc: true
+  
+vignette: >
+  %\VignetteIndexEntry{User Guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+This package is designed as a 'no frills' Markov model calculator primarily
+aimed at health economists conducting cost-effectiveness or cost-utility 
+analyses for health technology assessment.  Whilst there are some great 
+comprehensive packages on [CRAN](https://cran.r-project.org/) for 
+decision modelling (eg [heemod](https://CRAN.R-project.org/package=heemod)), I
+wanted a basic, stripped down calculator that could rapidly compute Markov 
+models receiving input and generating output in my own preferred, somewhat 
+idiosyncratic, format.
+
+The focus of this package is on speed of computation, and the results of 
+benchmarking tests as well as due-diligence accuracy checks of the code are in 
+the [accompanying]("validation-and-speed-check.html") vignette.
+
+Output can easily be imported into packages such as [BCEA](https://CRAN.R-project.org/package=BCEA) and [SAVI](https://github.com/Sheffield-Accelerated-VoI/SAVI) to take advantage
+of their functionality, such as Value of Information analysis calculations.
+
+I hope you find this useful in your own analyses.
+<hr>
+
+# Getting started
+
+Before looking at some examples, a few points to note:
+
+## Terminology
+
+The **state-transitions matrix** is a square matrix (that is, it has
+an equal number of rows and columns), showing the probability of transitioning
+from one state to another.  The number of rows and columns is equal
+to the number of health states.  The rows represent the 'from' state and the
+columns the 'to state', thus cell [1,2] of the matrix is the probability of
+going from state 1 to state 2 (0.1 in the example below).  The rows of the 
+matrix must sum to 1.
+
+```{r echo = FALSE}
+cat("Example state-transitions matrix:\n")
+stateN <- c("State 1", "State 2", "State 3")
+matrix(data = c(0.8, 0.1, 0.1,
+                0.0, 0.7, 0.3,
+                0.0, 0.0, 1.0), 
+       ncol = 3, byrow = TRUE,
+       dimnames = list(stateN, stateN))
+```
+
+A **stationary** Markov model (sometimes called **temporally stationary**)
+is where the transition probabilities do not vary with time.  A 
+**non-stationary** Markov model is where the transition probabilities are 
+different each cycle, for example to reflect increasing probability of death 
+with age, or changing hazard of disease recurrence in the years after definitive
+surgery etc.
+
+It follows that defining a stationary model needs only a single 
+state-transition matrix to be specified, but for a non-stationary model, a 
+separate matrix needs defining for each cycle (or rather, a 3d array where the 
+'slices' (z-dimension) represent cycle number.  The examples below show how to 
+do this using either life tables or a survival curve as the source data.
+
+## Cycles are numbered from zero
+
+The state of the Markov chain in t=0 is defined exogenously, so for a 
+non-stationary model (i.e. where transition probabilities vary over time), 
+you must define (cycles-1) transition matrices.
+
+## Markov models should always be analysed probabilistically
+
+As Markov models are non-linear, running a single iteration with the function
+runmarkov(), with all input parameters at their means will not yield the
+expected state of the model.  The means from a probabilistic analysis
+(from psamarkov()) are, by definition the expected states, and 
+should be presented as the 'base case' in any economic evaluation.
+
+The functions psamarkov() and psavalues() calculate the means based on repeated
+calls to runmarkov() and calcvalues() respectively.  However, during model 
+development it is very useful to look at deterministic results for debugging 
+and error checking, and so the deterministic functions runmarkov() and 
+calcvalues() are exposed / exported for this purpose.  The examples start with
+such a deterministic analysis, before moving on to probabilistic analyses.
+
+<hr>
+
+# Examples
+After installing the package, add it to your script with the following command:
+```{r setup}
+library(rrapidmarkov)
+```
+
+## Example 1a: My First Markov Model
+
+This example firstly calculates the Markov trace (proportions of cohort in each
+state each cycle) then applies costs and QALYs for a three state, temporally
+stationary model over ten years with cycle length = 1 year.
+
+The states represent a typical 3-state model, and are labelled 'alive', 
+'progressive' and 'dead'.
+
+'startingStates' must be a vector of length n where n = number of states and 
+sum(startingStates) = 1.
+
+First the Markov trace:
+
+```{r}
+states <- c("alive", "progressive", "dead")
+startingStates <- c(1, 0, 0)
+cycles <- 10
+transitionsMatrix <- matrix(data = c(0.8, 0.1, 0.1,
+                                     0.0, 0.7, 0.3,
+                                     0.0, 0.0, 1.0), ncol = 3, byrow = TRUE)
+
+output <- runmarkov(transitionsMatrix, startingStates, cycles, states)
+print(output)
+```
+
+Next apply the costs and health state utilities.  Assume the annnual cost of 
+'alive' is £100, 'progressive' is £1000 and 'dead' is zero.  Health state 
+utilities are 0.8, 0.5 and 0.0 respectively. The transition period (cycle 
+length) is 1 year, and the discount rate is 3.5% pa.
+
+```{r}
+# apply costs and outcomes
+stateCosts <- c(100, 1000, 0)
+stateUtilities <- c(0.8, 0.5, 0)
+transPeriod <- 1
+discountRate <- 0.035
+```
+When calculating QALYs from health state utilities, set the "QALYs" flag to 
+TRUE.  This ensures the calculations are adjusted for the transition period
+(see Example 1b).
+```{r results="hide"}
+costs <- calcvalues(output, stateCosts, transPeriod, discountRate)
+QALYs <- calcvalues(output, stateUtilities, transPeriod, discountRate, 
+                    QALYs = TRUE)
+```
+```{r}
+print(costs)
+print(QALYs)
+```
+
+## Example 1b: Six-monthly transition period
+
+This example is identical to 1a, but with a six-monthly rather than annual 
+transition period.  
+
+transPeriod should be entered as a fraction of a year.  Eg day = 1/365, week = 
+1/52, calendar month = 1/12, lunar (4-week) month = 1/13, quarter = 1/4 and so
+on.  This is best entered as a fraction rather than decimal.
+```{r results="hide"}
+states <- c("alive", "progressive", "dead")
+startingStates <- c(1, 0, 0)
+cycles <- 10
+transitionsMatrix <- matrix(data = c(0.8, 0.1, 0.1,
+                                     0.0, 0.7, 0.3,
+                                     0.0, 0.0, 1.0), ncol = 3, byrow = TRUE)
+output <- runmarkov(transitionsMatrix, startingStates, cycles, states)
+stateCosts <- c(100, 1000, 0)
+stateUtilities <- c(0.8, 0.5, 0)
+transPeriod <- 1/2
+discountRate <- 0.035
+costs <- calcvalues(output, stateCosts, transPeriod, discountRate)
+QALYs <- calcvalues(output, stateUtilities, transPeriod, discountRate, 
+                    QALYs = TRUE)
+```
+Compare the results below with Example 1a.  Undiscounted costs are unchanged but 
+undiscounted QALYs are halved.  Discounted costs and QALYs take into account the 
+shorter transition period.
+
+By convention first year costs and outcomes are not discounted.  For transition
+periods of less than one year (i.e. where transPeriod<1), this means the 
+discount factor for the first 1/transPeriod cycles will be 1.  Subsequent cycles
+are discounted by 1/((1+r)^(transPeriod x t)), so for a discountRate of 3.5% and
+a transPeriod of 1/2 (i.e. 6 months), cycles 0 and 1 will not be discounted,
+cycle 2 has a discount factor of 1/((1+0.035)^(0.5x2)) = 0.966, cycle 3 has a
+discount factor of 1/((1+0.035)^(0.5x3)) = 0.950 and so on.
+
+Note the code also works where the transition period is greater than one year,
+with QALYs and discounting adjusted accordingly.
+
+```{r}
+print(costs)
+print(QALYs)
+```
+
+## Example 2a: A non-stationary model
+
+This example calculates the cost and QALYs from a three-state non-stationary
+model (probabilities vary with time) over six cycles (cycle length = 1 year).
+
+Note the 'dim' argument of array() for defining transitionsMatrix must equal
+(nStates, nStates, cycles-1), so here it is c(3, 3, 5).
+
+aperm() transposes the array to the correct structure.
+
+```{r}
+states <- c("alive", "progressive", "dead")
+startingStates <- c(1, 0, 0)
+transitionsMatrix <- aperm(array(data = c(0.8, 0.1, 0.1,
+                                          0.0, 0.7, 0.3,
+                                          0.0, 0.0, 1.0,
+
+                                          0.7, 0.1, 0.2,
+                                          0.0, 0.6, 0.4,
+                                          0.0, 0.0, 1.0,
+
+                                          0.6, 0.1, 0.3,
+                                          0.0, 0.5, 0.5,
+                                          0.0, 0.0, 1.0,
+
+                                          0.5, 0.1, 0.4,
+                                          0.0, 0.4, 0.6,
+                                          0.0, 0.0, 1.0,
+
+                                          0.4, 0.1, 0.5,
+                                          0.0, 0.3, 0.7,
+                                          0.0, 0.0, 1.0),
+                                 dim = c(3, 3, 5)), 
+                           c(2, 1, 3))
+output <- runmarkov(transitionsMatrix, startingStates, stateNames = states)
+print(output)
+```
+Costs and QALYs can be applied by running the 'calcvalues' function as described
+in Example 1a:
+
+```{r results="hide"}
+stateCosts <- c(100, 1000, 0)
+stateUtilities <- c(0.8, 0.5, 0)
+costs <- calcvalues(output, stateCosts)
+QALYs <- calcvalues(output, stateUtilities, QALYs = TRUE)
+```
+```{r}
+print(costs)
+print(QALYs)
+```
+
+## Example 2b: Another non-stationary model
+
+Two state, non-stationary model, state names not specified, 50/50 
+split between states at t=0, run for four cycles.
+
+```{r}
+startingStates <- c(0.5, 0.5)
+transitionsMatrix <- aperm(array(data = c(0.8, 0.2,
+                                          0.3, 0.7,
+
+                                          1, 0,
+                                          0, 1,
+
+                                          0, 1,
+                                          0.5, 0.5),
+                                 dim = c(2, 2, 3)), 
+                           c(2, 1, 3))
+
+output <- runmarkov(transitionsMatrix, startingStates)
+print(output)
+```
+
+Again, costs and QALYs can be applied by running the 'calcvalues' function as
+described in Example 1a:
+```{r results = "hide"}
+stateCosts <- c(100, 1000)
+stateUtilities <- c(0.8, 0)
+costs <- calcvalues(output, stateCosts)
+QALYs <- calcvalues(output, stateUtilities, QALYs = TRUE)
+```
+```{r}
+print(costs)
+print(QALYs)
+```
+
+## Example 3: Using the converttomatrices() helper function
+
+Directly defining the transitionsMatrix is a little unwieldy for probabilistic 
+analyses (Monte Carlo simulation), especially for non-stationary models. My 
+preferred format when sampling is for every row of a table (which I call 
+'probs') to contain a complete set of all probabilities used in one iteration 
+of a model.  In a non-stationary Markov model, this leads to a lot of columns 
+(nStates^2 x (cycles-1)), but I find the neatness of one row per simulation 
+outweighs this.  However, psamarkov() requires a list with a 3d transitions 
+matrix for each simulation as a separate item.
+
+converttomatrices() converts the flat 'probs' table to a list where each list 
+item contains the state-transitions matrix for each Monte Carlo simulation. This
+can be used as the transitionsMatrix parameter passed to psamarkov().
+
+### Example 3a: Stationary model
+probs must contain a set of sampled transition probabilities as a matrix of 
+size n x c, where n = number of Monte Carlo simulations and c = nStates^2 
+(where nStates = number of health states).
+
+The column order for, say, a 2 state model must be: FromState1toState1, 
+FromState1toState2, FromState2toState1, FromState2toState2.
+
+This example is a model with three states, run for three cycles. Transition
+probabilities are sampled from Dirichlet distributions using 
+gtools::rdirichlet().
+
+```{r results = "hide"}
+library(gtools)
+sims <- 10
+set.seed(34)
+probs <- cbind(rdirichlet(sims,c(80, 10, 10)),
+               rdirichlet(sims,c(0, 7, 3)),
+               rdirichlet(sims,c(0, 0, 1)))
+colnames(probs) <- c("S1>S1", "S1>S2", "S1>S3",
+                     "S2>S1", "S2>S2", "S2>S3",
+                     "S3>S1", "S3>S2", "S3>S3")
+states <- c("alive", "progressive", "dead")
+cycles <- 3
+transitionsMatrix <- converttomatrices(states, probs, cycles)
+```
+There are *sims* sets of matrices (here sims=10).  The first two are shown below.
+Note that within each *sim*, the transitions matrices for each cycle are
+identical: this is a stationary model, but the matrices are different between
+each sim, representing a possible realisation of the world based on the 
+Dirichlet samples.
+```{r}
+transitionsMatrix[1:2]
+```
+
+### Example 3b: Non-stationary model
+probs must contain a set of sampled transition probabilities as a matrix of 
+size n x c, where n = number of Monte Carlo simulations and c = 
+(nStates^2)*(cycles-1) columns, (where nStates = number of health states, cycles
+= number of cycles).
+
+The column order for, say, a 2 state model with 3 cycles must be:
+Cycle1FromState1toState1, Cycle1FromState1toState2,
+Cycle1FromState2toState1, Cycle1FromState2toState2,
+Cycle2FromState1toState1, Cycle2FromState1toState2,
+Cycle2FromState2toState1, Cycle2FromState2toState2.
+
+This example is a model with three states, run for three cycles. Transition
+probabilities are sampled from Dirichlet distributions using 
+gtools::rdirichlet(), with a different distribution specified for each cycle.
+Specifically, there is a 10% probability of moving from 'alive' to 'progressive'
+in cycle 1, rising to 20% in cycle 2.
+
+```{r results = "hide"}
+library(gtools)
+sims <- 10
+set.seed(34)
+probs = cbind(rdirichlet(sims,c(80, 10, 10)),
+             rdirichlet(sims,c(0, 7, 3)),
+             rdirichlet(sims,c(0, 0, 1)),
+
+             rdirichlet(sims,c(70, 20, 10)),
+             rdirichlet(sims,c(0, 7, 3)),
+             rdirichlet(sims,c(0, 0, 1)))
+
+colnames(probs) <- c("c1_S1>S1", "c1_S1>S2", "c1_S1>S3",
+                     "c1_S2>S1", "c1_S2>S2", "c1_S2>S3",
+                     "c1_S3>S1", "c1_S3>S2", "c1_S3>S3",
+
+                    "c2_S1>S1", "c2_S1>S2", "c2_S1>S3",
+                    "c2_S2>S1", "c2_S2>S2", "c2_S2>S3",
+                    "c2_S3>S1", "c2_S3>S2", "c2_S3>S3")
+states <- c("alive", "progressive", "dead")
+transitionsMatrix <- converttomatrices(states, probs)
+```
+transitionsMatrix contains *sims* sets of matrices (here sims=10).  The first 
+two are shown below.  Note that within each *sim*, the transitions matrices for 
+each cycle are different: this is a non-stationary model.  The sets of matrices
+are different between each sim, representing a possible realisation of the world 
+based on the input Dirichlet distributions.
+
+```{r}
+transitionsMatrix[1:2]
+```
+
+## Example 4: Bringing everything together
+This is where we start to generate meaningful analyses with some probabilistic
+modelling.  We keep the same three-state model, "alive", "progressive" and 
+"dead", and begin again with a stationary example, before moving on to a more 
+plausible (but complicated) non-stationary one.
+
+### Example 4a: Probabilistic modelling, stationary model
+First, we generate *sims* sets of PSA samples of the transition probabilities,
+costs and health state utilities from appropriate distributions.  Here,
+Dirichlet for probabilities, gamma for costs, and beta for health state
+utilities.
+```{r}
+library(gtools)
+sims <- 10
+set.seed(34)
+probs = cbind(rdirichlet(sims,c(80, 10, 10)),
+              rdirichlet(sims,c(0, 7, 3)),
+              rdirichlet(sims,c(0, 0, 1)))
+colnames(probs) <- c("S1>S1", "S1>S2", "S1>S3",
+                     "S2>S1", "S2>S2", "S2>S3",
+                     "S3>S1", "S3>S2", "S3>S3")
+stateCosts <- cbind(rgamma(sims, 10, 1/50),rgamma(sims, 1, 1/1000), 
+                    rep(0, sims))
+stateUtilities <- cbind(rbeta(sims, 800, 200), rbeta(sims, 50, 50),
+                        rep(0, sims))
+```
+
+We then specify the state names, starting states, cycles, and convert the flat 
+'probs' matrix using converttomatrices() helper function.  The Markov traces 
+are calculated with a call to psamarkov().
+
+```{r results = "hide"}
+states <- c("alive", "progressive", "dead")
+startingStates <- c(1, 0, 0)
+cycles <- 10
+transitionsMatrix <- converttomatrices(states, probs, cycles)
+output <- psamarkov(transitionsMatrix, startingStates, cycles, states)
+```
+
+psamarkov() returns a list containing the means, upper and lower 95% credibility
+limits for each state at each time point, as well as an array containing the 
+entire raw data from each sim (the first two slices of which are shown below):
+
+```{r}
+print(output$means)
+print(output$LCL)
+print(output$UCL)
+
+print(output$raw[,,1:2])
+```
+
+Now calculate the costs and outcomes using the sampled values of each (we'll use
+the default transition period of 1 and discount rate of 3.5%):
+```{r results = "hide"}
+costs <- psavalues(output, stateCosts)
+QALYs <- psavalues(output, stateUtilities, QALYs = TRUE)
+```
+
+And view some of the output:
+```{r}
+print(costs$undisc$mean)
+
+print(costs$disc$total)
+print(QALYs$disc$total)
+```
+
+We can retrieve a vector of estimated costs and QALYs in a format suitable for
+use in [SAVI](https://github.com/Sheffield-Accelerated-VoI/SAVI) to calculate
+value of information statistics:
+
+```{r}
+print(costs$disc$SAVI)
+print(QALYs$disc$SAVI)
+```
+
+And assemble all the input parameters too (whilst making the column headers a 
+little clearer - 'C' stands for cost and 'U' for utility):
+```{r}
+paramsSAVI <- cbind(probs,stateCosts,stateUtilities)
+colnames(paramsSAVI) <- c(colnames(paramsSAVI)[1:9],
+                          "C_S1", "C_S2", "C_S3", 
+                          "U_S1", "U_S2", "U_S3")
+head(paramsSAVI)
+```
+
+It's worth noting that the probability of moving from state 1 to states 1, 2 or
+3 ("S1>S1", "S1>S2", and "S1>S3") are generated from the multinomial Dirichlet
+distribution, and hence are correlated.  The EVPPI for the three parameters 
+individually is therefore unhelpful, and these should be grouped together in
+SAVI to calculate the EVPPI of "moving from state 1 to any other state".  The
+same is true for the probabilities of moving from state 2 (and indeed state 3,
+although this is the absorbing state and there is zero uncertainty).
+
+### Example 4b: Probabilistic modelling, non-stationary model
+The idea here is to use your favourite data-generating process to sample the
+time-varying transition probabilities.  These are compiled into a wide matrix
+called probs, where each row represents one complete set of simulated values.  
+
+The order of the columns of probs is cycle number, state 1 to every other state,
+state 2 to every other state and so on.  For example for a 2-state model with 3 
+cycles, the complete order of columns would be:
+C1_S1>S1, C1_S1>S2, C1_S2>S1, C1_S2>S2
+C2_S1>S1, C2_S1>S2, C2_S2>S1, C2_S2>S2.  Where C = cycle, S = state, so C1_S1>S1
+is the probability of transitioning from state 1 to state 1 in cycle 1.
+
+Note cycles are numbered from 0, where the Markov chain is in its starting
+state, so you only need to specify cycles-1 sets of transitions.
+
+Suppose we're modelling the natural history of "Disease X" with the following
+assumptions:
+
+1. There are three health states, 'alive', 'progressive' and 'dead'.
+1. The typical patient is a 60 year old female.
+1. The model will run for 10 cycles.
+1. Patients in the 'alive' state are at no increased risk of death compared with
+the general population.
+1. The probability of a patient developing progressive disease increases with
+age, following a Weibull survival function.
+1. Patients in the 'progressive' state have approximately 30% mortality risk
+per annum (this is time-invariant to keep the example simple).
+
+Set up a few model parameters reflecting (1)-(3) first:
+```{r}
+states <- c("alive", "progressive", "dead")
+startingStates <- c(1, 0, 0)
+startAge <- 60
+cycles <- 10
+```
+
+Data source for (4) is lifetable data from [ONS](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/lifeexpectancies/datasets/nationallifetablesunitedkingdomreferencetables), 2016-18, females age 60-68.  
+Given these are population level data, the standard error is small enough to 
+enter these probabilities as constants in the model.
+```{r}
+lifeTable <- c(0.003548, 0.000224, 0.000127, 0.000098, 0.000073, 
+               0.000081, 0.000075, 0.000060, 0.000060, 0.000062, 
+               0.000059, 0.000076, 0.000069, 0.000078, 0.000101, 
+               0.000119, 0.000153, 0.000152, 0.000218, 0.000196, 
+               0.000197, 0.000224, 0.000219, 0.000220, 0.000226, 
+               0.000260, 0.000252, 0.000286, 0.000330, 0.000314, 
+               0.000374, 0.000394, 0.000482, 0.000500, 0.000545, 
+               0.000586, 0.000654, 0.000738, 0.000720, 0.000846, 
+               0.000882, 0.000993, 0.001051, 0.001183, 0.001328, 
+               0.001436, 0.001540, 0.001700, 0.001823, 0.001935, 
+               0.002136, 0.002363, 0.002581, 0.002756, 0.002952, 
+               0.003265, 0.003621, 0.003896, 0.004324, 0.004730, 
+               0.005104, 0.005600, 0.006303, 0.006832, 0.007346, 
+               0.007995, 0.008860, 0.009523, 0.010379, 0.011361, 
+               0.012601, 0.013781, 0.015916, 0.017545, 0.019298, 
+               0.022011, 0.025052, 0.027787, 0.031365, 0.034408, 
+               0.038922, 0.043938, 0.049786, 0.057500, 0.065049, 
+               0.073792, 0.084250, 0.095303, 0.108358, 0.121616, 
+               0.136979, 0.153256, 0.169425, 0.187195, 0.206281, 
+               0.230368, 0.249110, 0.270828, 0.290344, 0.316440, 0.339686)
+```
+
+For (5) assume we have some long term observational data on a cohort of patients
+with Disease X.  The Weibull function was shown to be the best fitting model and
+has two parameters, shape and scale.  The mean (standard error of log of mean)
+of each are 2 (ln1.05) and 0.001 (ln1.1) respectively.  The parameters are 
+estimated from fitting the curve to the Kaplan-Meier plot of a cohort observed 
+over time moving from 'alive' to 'progressive' disease.  The parameters are 
+distributed log-normal.  We sample from these *sims* times:
+
+```{r}
+sims <- 10
+set.seed(100)
+WeibullSamples<- data.frame(shapes = rlnorm(sims, log(2), log(1.05)),
+                      scales = rlnorm(sims, log(0.001), log(1.1)))
+```
+
+We then calculate *sims* Weibull functions with each sampled shape and scale
+parameter, and convert the hazard to transition probabilities for ages 60-69.
+(The transition probability between t(x-1) and t(x) is 1-exp(scale*((t(x-1)^shape 
+- t(x)^shape))).
+
+We store this in the matrix 'p_AtoP' ("probability of moving from alive to 
+progressive").
+```{r}
+p_AtoP <- t(apply(WeibullSamples, 1,
+                  function(y) sapply((startAge + 1):(startAge + cycles - 1),
+                                     function(x) {
+                                       1 - exp(y[2] * ((x - 1)^y[1] - x^y[1]))
+                                     }
+                                    )
+                  )
+            )
+colnames(p_AtoP) <- paste0("p_AtoP_Age", startAge:(startAge + cycles - 2))
+```
+
+Next extract relevant lifetable data, and expand out replicating for each *sim*.
+Save this in thematrix 'p_AtoD' ("probability of moving from alive to dead").
+```{r}
+lifetableExtract <- lifeTable[(startAge+1):(startAge + cycles - 1)]
+p_AtoD <- matrix(rep(lifetableExtract, sims), nrow = sims, byrow = TRUE)
+colnames(p_AtoD) <- paste0("p_AtoD_Age", startAge:(startAge + cycles - 2))
+```
+
+Each cycle, the probability of remaining in the 'alive' state is 1-sum(
+probability of moving to 'progressive', probability of moving to 'dead'):
+```{r}
+StayingAlive <- 1 - p_AtoP - p_AtoD
+colnames(StayingAlive) <- paste0("p_AtoA_Age", startAge:(startAge + cycles - 2))
+```
+We now have the transitions from the 'alive' state to 'alive', 'progressive' and
+'dead' by transition period and sim.  Note as these are estimated separately, 
+where the probabilities of death or progression are 'high', the probability of
+remaining 'alive' may be negative.  Fortunately this doesn't occur in this 
+example, but should this happen, the probabilities will need to be adjusted or
+(ideally) jointly estimated.
+
+Now set up the 'probs' matrix and populate with the transitions calculated so
+far:
+```{r}
+nStates <- length(states)
+probs <- matrix(data = NA, nrow = sims, ncol = nStates^2 * (cycles - 1))
+colnames(probs) <- unlist(lapply(1:(cycles - 1),
+                                 function(i) c(paste0("A>>A", i),
+                                               paste0("A>>P", i),
+                                               paste0("A>>D", i),
+                                               paste0("P>>A", i),
+                                               paste0("P>>P", i),
+                                               paste0("P>>D", i),
+                                               paste0("D>>A", i),
+                                               paste0("D>>P", i),
+                                               paste0("D>>D", i))
+                                 )
+                          )
+probs[, seq(1, (cycles-1) * nStates^2, nStates^2)] <- StayingAlive
+probs[, seq(2, (cycles-1) * nStates^2, nStates^2)] <- p_AtoP
+probs[, seq(3, (cycles-1) * nStates^2, nStates^2)] <- p_AtoD
+```
+The transitions from progressive disease follow a simple Dirichlet(0,7,3), 
+implying a mean 30% probability of death as per assumption (6), and we have no 
+resurrection of the dead:
+```{r}
+library(gtools)
+
+FromProgressive <- rdirichlet(sims, c(0, 7, 3))
+for (i in 1:3) {
+  probs[, seq(i + 3, (cycles - 1) * nStates^2, nStates^2)] <- FromProgressive[, i]
+}
+
+FromDead <- matrix(data = rep(c(0, 0, 1), sims), nrow = sims, byrow = TRUE)
+for (i in 1:3) {
+  probs[, seq(i + 6, (cycles - 1) * nStates^2, nStates^2)] <- FromDead[, i]
+}
+```
+Now probs is set up, the model is calculated exactly the same as before:
+reformatting probs and calculating the Markov traces, followed by eyeballing
+some of the output:
+
+``` {r results = "hide"}
+transitionsMatrix <- converttomatrices(states, probs)
+output <- psamarkov(transitionsMatrix, startingStates, stateNames = states)
+```
+```{r}
+print(output$means)
+print(output$LCL)
+print(output$UCL)
+```
+
+Finally costs and health state utilities are sampled and applied to the Markov
+trace:
+```{r results = "hide"}
+stateCosts <- cbind(rgamma(sims, 10, 1/50), rgamma(sims, 1, 1/1000), rep(0, sims))
+stateUtilities <- cbind(rbeta(sims, 800, 200), rbeta(sims, 50, 50), rep(0, sims))
+
+costs <- psavalues(output, stateCosts)
+QALYs <- psavalues(output, stateUtilities, QALYs = TRUE)
+```
+```{r}
+print(costs$undisc$mean)
+
+print(costs$disc$total)
+print(QALYs$disc$total)
+```
+
+As before, a vector of costs and QALYs can be extracted in [SAVI](https://github.com/Sheffield-Accelerated-VoI/SAVI) format:
+```{r}
+print(costs$disc$SAVI)
+print(QALYs$disc$SAVI)
+```
+
+Assembling the input parameters in SAVI format is a little different from 
+Example 4a.  For the Weibull survival function, Whilst we could simply add a 
+column for everytransition at every time period, this is less useful and very 
+inefficient.  What we really want are the sampled shape and scale parameters.  
+There is no uncertainty in the life table data hence there is no point in 
+including them. The sampled Dirichlet probabilities for transitions from the 
+progressive state do need including as in Example 4a, and the same caveat is 
+added: the EVPPI of the group of three should be examined, rather than for each
+probability individually.
+
+Finally we add the sampled costs and health state utilities too:
+```{r}
+paramsSAVI <- cbind(WeibullSamples, FromProgressive
+                    ,stateCosts,stateUtilities)
+colnames(paramsSAVI) <- c(colnames(paramsSAVI)[1:2],
+                          "P_PtoA", "P_PtoP", "P_PtoD",
+                          "C_S1", "C_S2", "C_S3", 
+                          "U_S1", "U_S2", "U_S3")
+head(paramsSAVI)
+```
+
+
+# Multi-core / parallel processing
+Currently, using multiple cores increases time taken to compute by a factor of
+around 2.  I think this is due to overhead from allocating *sims* to each core
+sequentially one by one, whilst each individual calculation has a very quick 
+processing time.  This may be solved by sending batches of sims to each core 
+in turn rather than drip-feeding each core sim by sim. I will work on this in 
+the future.  The non-functional parallel code is left in psamarkov() for the 
+time being. 

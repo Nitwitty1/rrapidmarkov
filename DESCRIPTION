@@ -1,0 +1,24 @@
+Package: rrapidmarkov
+Type: Package
+Title: Quick, simple Markov modelling for Health Economic evaluation
+Version: 0.1.0
+Authors@R: person("Ed", "Wilson", email = "ed.wilson@uea.ac.uk", 
+            role = c("aut", "cre"))
+Description: Takes a set of transition probabilities and calculates the Markov
+    trace (i.e. proportions of cohort in each state at eact time period), then
+    applies values to each (eg costs, health state utilities) for use in 
+    health economic evaluations / cost-effectiveness or cost-utility analyses.
+    The package is built as a 'no-frills' approach, with a focus on 
+    computational speed, thus is quite efficient for probabilistic analyses.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Imports:
+    parallel
+Suggests:
+    devtools,
+    gtools,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
