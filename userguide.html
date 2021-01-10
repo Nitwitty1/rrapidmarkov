@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Ed Wilson" />
+
+<meta name="date" content="2020-07-14" />
+
+<title>rrapidmarkov: User Guide</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">rrapidmarkov: User Guide</h1>
+<h4 class="author">Ed Wilson</h4>
+<h4 class="date">2020-07-14</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#getting-started">Getting started</a><ul>
+<li><a href="#terminology">Terminology</a></li>
+<li><a href="#cycles-are-numbered-from-zero">Cycles are numbered from zero</a></li>
+<li><a href="#markov-models-should-always-be-analysed-probabilistically">Markov models should always be analysed probabilistically</a></li>
+</ul></li>
+<li><a href="#examples">Examples</a><ul>
+<li><a href="#example-1a-my-first-markov-model">Example 1a: My First Markov Model</a></li>
+<li><a href="#example-1b-six-monthly-transition-period">Example 1b: Six-monthly transition period</a></li>
+<li><a href="#example-2a-a-non-stationary-model">Example 2a: A non-stationary model</a></li>
+<li><a href="#example-2b-another-non-stationary-model">Example 2b: Another non-stationary model</a></li>
+<li><a href="#example-3-using-the-converttomatrices-helper-function">Example 3: Using the converttomatrices() helper function</a><ul>
+<li><a href="#example-3a-stationary-model">Example 3a: Stationary model</a></li>
+<li><a href="#example-3b-non-stationary-model">Example 3b: Non-stationary model</a></li>
+</ul></li>
+<li><a href="#example-4-bringing-everything-together">Example 4: Bringing everything together</a><ul>
+<li><a href="#example-4a-probabilistic-modelling-stationary-model">Example 4a: Probabilistic modelling, stationary model</a></li>
+<li><a href="#example-4b-probabilistic-modelling-non-stationary-model">Example 4b: Probabilistic modelling, non-stationary model</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#multi-core-parallel-processing">Multi-core / parallel processing</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>This package is designed as a ‘no frills’ Markov model calculator primarily aimed at health economists conducting cost-effectiveness or cost-utility analyses for health technology assessment. Whilst there are some great comprehensive packages on <a href="https://cran.r-project.org/">CRAN</a> for decision modelling (eg <a href="https://CRAN.R-project.org/package=heemod">heemod</a>), I wanted a basic, stripped down calculator that could rapidly compute Markov models receiving input and generating output in my own preferred, somewhat idiosyncratic, format.</p>
+<p>The focus of this package is on speed of computation, and the results of benchmarking tests as well as due-diligence accuracy checks of the code are in the <a href="%22validation-and-speed-check.html%22">accompanying</a> vignette.</p>
+<p>Output can easily be imported into packages such as <a href="https://CRAN.R-project.org/package=BCEA">BCEA</a> and <a href="https://github.com/Sheffield-Accelerated-VoI/SAVI">SAVI</a> to take advantage of their functionality, such as Value of Information analysis calculations.</p>
+I hope you find this useful in your own analyses.
+<hr>
+</div>
+<div id="getting-started" class="section level1">
+<h1>Getting started</h1>
+<p>Before looking at some examples, a few points to note:</p>
+<div id="terminology" class="section level2">
+<h2>Terminology</h2>
+<p>The <strong>state-transitions matrix</strong> is a square matrix (that is, it has an equal number of rows and columns), showing the probability of transitioning from one state to another. The number of rows and columns is equal to the number of health states. The rows represent the ‘from’ state and the columns the ‘to state’, thus cell [1,2] of the matrix is the probability of going from state 1 to state 2 (0.1 in the example below). The rows of the matrix must sum to 1.</p>
+<pre><code>#&gt; Example state-transitions matrix:
+#&gt;         State 1 State 2 State 3
+#&gt; State 1     0.8     0.1     0.1
+#&gt; State 2     0.0     0.7     0.3
+#&gt; State 3     0.0     0.0     1.0</code></pre>
+<p>A <strong>stationary</strong> Markov model (sometimes called <strong>temporally stationary</strong>) is where the transition probabilities do not vary with time. A <strong>non-stationary</strong> Markov model is where the transition probabilities are different each cycle, for example to reflect increasing probability of death with age, or changing hazard of disease recurrence in the years after definitive surgery etc.</p>
+<p>It follows that defining a stationary model needs only a single state-transition matrix to be specified, but for a non-stationary model, a separate matrix needs defining for each cycle (or rather, a 3d array where the ‘slices’ (z-dimension) represent cycle number. The examples below show how to do this using either life tables or a survival curve as the source data.</p>
+</div>
+<div id="cycles-are-numbered-from-zero" class="section level2">
+<h2>Cycles are numbered from zero</h2>
+<p>The state of the Markov chain in t=0 is defined exogenously, so for a non-stationary model (i.e. where transition probabilities vary over time), you must define (cycles-1) transition matrices.</p>
+</div>
+<div id="markov-models-should-always-be-analysed-probabilistically" class="section level2">
+<h2>Markov models should always be analysed probabilistically</h2>
+<p>As Markov models are non-linear, running a single iteration with the function runmarkov(), with all input parameters at their means will not yield the expected state of the model. The means from a probabilistic analysis (from psamarkov()) are, by definition the expected states, and should be presented as the ‘base case’ in any economic evaluation.</p>
+<p>The functions psamarkov() and psavalues() calculate the means based on repeated calls to runmarkov() and calcvalues() respectively. However, during model development it is very useful to look at deterministic results for debugging and error checking, and so the deterministic functions runmarkov() and calcvalues() are exposed / exported for this purpose. The examples start with such a deterministic analysis, before moving on to probabilistic analyses.</p>
+<hr>
+</div>
+</div>
+<div id="examples" class="section level1">
+<h1>Examples</h1>
+<p>After installing the package, add it to your script with the following command:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">library</span>(rrapidmarkov)</span></code></pre></div>
+<div id="example-1a-my-first-markov-model" class="section level2">
+<h2>Example 1a: My First Markov Model</h2>
+<p>This example firstly calculates the Markov trace (proportions of cohort in each state each cycle) then applies costs and QALYs for a three state, temporally stationary model over ten years with cycle length = 1 year.</p>
+<p>The states represent a typical 3-state model, and are labelled ‘alive’, ‘progressive’ and ‘dead’.</p>
+<p>‘startingStates’ must be a vector of length n where n = number of states and sum(startingStates) = 1.</p>
+<p>First the Markov trace:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;alive&quot;</span>, <span class="st">&quot;progressive&quot;</span>, <span class="st">&quot;dead&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>startingStates &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>cycles &lt;-<span class="st"> </span><span class="dv">10</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>transitionsMatrix &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">data =</span> <span class="kw">c</span>(<span class="fl">0.8</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>                                     <span class="fl">0.0</span>, <span class="fl">0.7</span>, <span class="fl">0.3</span>,</span>
+<span id="cb3-6"><a href="#cb3-6"></a>                                     <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1.0</span>), <span class="dt">ncol =</span> <span class="dv">3</span>, <span class="dt">byrow =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a>output &lt;-<span class="st"> </span><span class="kw">runmarkov</span>(transitionsMatrix, startingStates, cycles, states)</span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt; </span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt; rrapidmarkov by Ed Wilson</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt; v0.1 July 2020</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt; Number of states:  3 </span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#&gt; State names: alive progressive dead</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="co">#&gt; Cycles:  10 </span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="co">#&gt; State transitions matrix:</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="co">#&gt;      [,1] [,2] [,3]</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="co">#&gt; [1,]  0.8  0.1  0.1</span></span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class="co">#&gt; [2,]  0.0  0.7  0.3</span></span>
+<span id="cb3-19"><a href="#cb3-19"></a><span class="co">#&gt; [3,]  0.0  0.0  1.0</span></span>
+<span id="cb3-20"><a href="#cb3-20"></a><span class="kw">print</span>(output)</span>
+<span id="cb3-21"><a href="#cb3-21"></a><span class="co">#&gt;            alive progressive      dead</span></span>
+<span id="cb3-22"><a href="#cb3-22"></a><span class="co">#&gt; cycle0 1.0000000  0.00000000 0.0000000</span></span>
+<span id="cb3-23"><a href="#cb3-23"></a><span class="co">#&gt; cycle1 0.8000000  0.10000000 0.1000000</span></span>
+<span id="cb3-24"><a href="#cb3-24"></a><span class="co">#&gt; cycle2 0.6400000  0.15000000 0.2100000</span></span>
+<span id="cb3-25"><a href="#cb3-25"></a><span class="co">#&gt; cycle3 0.5120000  0.16900000 0.3190000</span></span>
+<span id="cb3-26"><a href="#cb3-26"></a><span class="co">#&gt; cycle4 0.4096000  0.16950000 0.4209000</span></span>
+<span id="cb3-27"><a href="#cb3-27"></a><span class="co">#&gt; cycle5 0.3276800  0.15961000 0.5127100</span></span>
+<span id="cb3-28"><a href="#cb3-28"></a><span class="co">#&gt; cycle6 0.2621440  0.14449500 0.5933610</span></span>
+<span id="cb3-29"><a href="#cb3-29"></a><span class="co">#&gt; cycle7 0.2097152  0.12736090 0.6629239</span></span>
+<span id="cb3-30"><a href="#cb3-30"></a><span class="co">#&gt; cycle8 0.1677722  0.11012415 0.7221037</span></span>
+<span id="cb3-31"><a href="#cb3-31"></a><span class="co">#&gt; cycle9 0.1342177  0.09386412 0.7719182</span></span></code></pre></div>
+<p>Next apply the costs and health state utilities. Assume the annnual cost of ‘alive’ is £100, ‘progressive’ is £1000 and ‘dead’ is zero. Health state utilities are 0.8, 0.5 and 0.0 respectively. The transition period (cycle length) is 1 year, and the discount rate is 3.5% pa.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># apply costs and outcomes</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>stateCosts &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">0</span>)</span>
+<span id="cb4-3"><a href="#cb4-3"></a>stateUtilities &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.8</span>, <span class="fl">0.5</span>, <span class="dv">0</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>transPeriod &lt;-<span class="st"> </span><span class="dv">1</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>discountRate &lt;-<span class="st"> </span><span class="fl">0.035</span></span></code></pre></div>
+<p>When calculating QALYs from health state utilities, set the “QALYs” flag to TRUE. This ensures the calculations are adjusted for the transition period (see Example 1b).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>costs &lt;-<span class="st"> </span><span class="kw">calcvalues</span>(output, stateCosts, transPeriod, discountRate)</span>
+<span id="cb5-2"><a href="#cb5-2"></a>QALYs &lt;-<span class="st"> </span><span class="kw">calcvalues</span>(output, stateUtilities, transPeriod, discountRate, </span>
+<span id="cb5-3"><a href="#cb5-3"></a>                    <span class="dt">QALYs =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">print</span>(costs)</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="co">#&gt; $undisc</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="co">#&gt;            alive progressive dead     total</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="co">#&gt; cycle0 100.00000     0.00000    0  100.0000</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; cycle1  80.00000   100.00000    0  180.0000</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; cycle2  64.00000   150.00000    0  214.0000</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt; cycle3  51.20000   169.00000    0  220.2000</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt; cycle4  40.96000   169.50000    0  210.4600</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; cycle5  32.76800   159.61000    0  192.3780</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co">#&gt; cycle6  26.21440   144.49500    0  170.7094</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="co">#&gt; cycle7  20.97152   127.36090    0  148.3324</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="co">#&gt; cycle8  16.77722   110.12415    0  126.9014</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="co">#&gt; cycle9  13.42177    93.86412    0  107.2859</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="co">#&gt; total  446.31291  1223.95417    0 1670.2671</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="co">#&gt; </span></span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="co">#&gt; $disc</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a><span class="co">#&gt;            alive progressive dead      total</span></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="co">#&gt; cycle0 100.00000     0.00000    0  100.00000</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a><span class="co">#&gt; cycle1  77.29469    96.61836    0  173.91304</span></span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="co">#&gt; cycle2  59.74468   140.02661    0  199.77129</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a><span class="co">#&gt; cycle3  46.17947   152.42832    0  198.60778</span></span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="co">#&gt; cycle4  35.69427   147.70946    0  183.40373</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a><span class="co">#&gt; cycle5  27.58978   134.38734    0  161.97711</span></span>
+<span id="cb6-24"><a href="#cb6-24"></a><span class="co">#&gt; cycle6  21.32543   117.54678    0  138.87221</span></span>
+<span id="cb6-25"><a href="#cb6-25"></a><span class="co">#&gt; cycle7  16.48343   100.10452    0  116.58794</span></span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="co">#&gt; cycle8  12.74081    83.62955    0   96.37036</span></span>
+<span id="cb6-27"><a href="#cb6-27"></a><span class="co">#&gt; cycle9   9.84797    68.87101    0   78.71898</span></span>
+<span id="cb6-28"><a href="#cb6-28"></a><span class="co">#&gt; total  406.90053  1041.32193    0 1448.22246</span></span>
+<span id="cb6-29"><a href="#cb6-29"></a><span class="co">#&gt; </span></span>
+<span id="cb6-30"><a href="#cb6-30"></a><span class="co">#&gt; $totalUndisc</span></span>
+<span id="cb6-31"><a href="#cb6-31"></a><span class="co">#&gt; [1] 1670.267</span></span>
+<span id="cb6-32"><a href="#cb6-32"></a><span class="co">#&gt; </span></span>
+<span id="cb6-33"><a href="#cb6-33"></a><span class="co">#&gt; $totalDisc</span></span>
+<span id="cb6-34"><a href="#cb6-34"></a><span class="co">#&gt; [1] 1448.222</span></span>
+<span id="cb6-35"><a href="#cb6-35"></a><span class="co">#&gt; </span></span>
+<span id="cb6-36"><a href="#cb6-36"></a><span class="co">#&gt; $transPeriod</span></span>
+<span id="cb6-37"><a href="#cb6-37"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb6-38"><a href="#cb6-38"></a><span class="co">#&gt; </span></span>
+<span id="cb6-39"><a href="#cb6-39"></a><span class="co">#&gt; $discountRate</span></span>
+<span id="cb6-40"><a href="#cb6-40"></a><span class="co">#&gt; [1] 0.035</span></span>
+<span id="cb6-41"><a href="#cb6-41"></a><span class="kw">print</span>(QALYs)</span>
+<span id="cb6-42"><a href="#cb6-42"></a><span class="co">#&gt; $undisc</span></span>
+<span id="cb6-43"><a href="#cb6-43"></a><span class="co">#&gt;            alive progressive dead     total</span></span>
+<span id="cb6-44"><a href="#cb6-44"></a><span class="co">#&gt; cycle0 0.8000000  0.00000000    0 0.8000000</span></span>
+<span id="cb6-45"><a href="#cb6-45"></a><span class="co">#&gt; cycle1 0.6400000  0.05000000    0 0.6900000</span></span>
+<span id="cb6-46"><a href="#cb6-46"></a><span class="co">#&gt; cycle2 0.5120000  0.07500000    0 0.5870000</span></span>
+<span id="cb6-47"><a href="#cb6-47"></a><span class="co">#&gt; cycle3 0.4096000  0.08450000    0 0.4941000</span></span>
+<span id="cb6-48"><a href="#cb6-48"></a><span class="co">#&gt; cycle4 0.3276800  0.08475000    0 0.4124300</span></span>
+<span id="cb6-49"><a href="#cb6-49"></a><span class="co">#&gt; cycle5 0.2621440  0.07980500    0 0.3419490</span></span>
+<span id="cb6-50"><a href="#cb6-50"></a><span class="co">#&gt; cycle6 0.2097152  0.07224750    0 0.2819627</span></span>
+<span id="cb6-51"><a href="#cb6-51"></a><span class="co">#&gt; cycle7 0.1677722  0.06368045    0 0.2314526</span></span>
+<span id="cb6-52"><a href="#cb6-52"></a><span class="co">#&gt; cycle8 0.1342177  0.05506208    0 0.1892798</span></span>
+<span id="cb6-53"><a href="#cb6-53"></a><span class="co">#&gt; cycle9 0.1073742  0.04693206    0 0.1543062</span></span>
+<span id="cb6-54"><a href="#cb6-54"></a><span class="co">#&gt; total  3.5705033  0.61197709    0 4.1824804</span></span>
+<span id="cb6-55"><a href="#cb6-55"></a><span class="co">#&gt; </span></span>
+<span id="cb6-56"><a href="#cb6-56"></a><span class="co">#&gt; $disc</span></span>
+<span id="cb6-57"><a href="#cb6-57"></a><span class="co">#&gt;             alive progressive dead     total</span></span>
+<span id="cb6-58"><a href="#cb6-58"></a><span class="co">#&gt; cycle0 0.80000000  0.00000000    0 0.8000000</span></span>
+<span id="cb6-59"><a href="#cb6-59"></a><span class="co">#&gt; cycle1 0.61835749  0.04830918    0 0.6666667</span></span>
+<span id="cb6-60"><a href="#cb6-60"></a><span class="co">#&gt; cycle2 0.47795748  0.07001330    0 0.5479708</span></span>
+<span id="cb6-61"><a href="#cb6-61"></a><span class="co">#&gt; cycle3 0.36943573  0.07621416    0 0.4456499</span></span>
+<span id="cb6-62"><a href="#cb6-62"></a><span class="co">#&gt; cycle4 0.28555419  0.07385473    0 0.3594089</span></span>
+<span id="cb6-63"><a href="#cb6-63"></a><span class="co">#&gt; cycle5 0.22071821  0.06719367    0 0.2879119</span></span>
+<span id="cb6-64"><a href="#cb6-64"></a><span class="co">#&gt; cycle6 0.17060345  0.05877339    0 0.2293768</span></span>
+<span id="cb6-65"><a href="#cb6-65"></a><span class="co">#&gt; cycle7 0.13186740  0.05005226    0 0.1819197</span></span>
+<span id="cb6-66"><a href="#cb6-66"></a><span class="co">#&gt; cycle8 0.10192649  0.04181478    0 0.1437413</span></span>
+<span id="cb6-67"><a href="#cb6-67"></a><span class="co">#&gt; cycle9 0.07878376  0.03443551    0 0.1132193</span></span>
+<span id="cb6-68"><a href="#cb6-68"></a><span class="co">#&gt; total  3.25520421  0.52066097    0 3.7758652</span></span>
+<span id="cb6-69"><a href="#cb6-69"></a><span class="co">#&gt; </span></span>
+<span id="cb6-70"><a href="#cb6-70"></a><span class="co">#&gt; $totalUndisc</span></span>
+<span id="cb6-71"><a href="#cb6-71"></a><span class="co">#&gt; [1] 4.18248</span></span>
+<span id="cb6-72"><a href="#cb6-72"></a><span class="co">#&gt; </span></span>
+<span id="cb6-73"><a href="#cb6-73"></a><span class="co">#&gt; $totalDisc</span></span>
+<span id="cb6-74"><a href="#cb6-74"></a><span class="co">#&gt; [1] 3.775865</span></span>
+<span id="cb6-75"><a href="#cb6-75"></a><span class="co">#&gt; </span></span>
+<span id="cb6-76"><a href="#cb6-76"></a><span class="co">#&gt; $transPeriod</span></span>
+<span id="cb6-77"><a href="#cb6-77"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb6-78"><a href="#cb6-78"></a><span class="co">#&gt; </span></span>
+<span id="cb6-79"><a href="#cb6-79"></a><span class="co">#&gt; $discountRate</span></span>
+<span id="cb6-80"><a href="#cb6-80"></a><span class="co">#&gt; [1] 0.035</span></span></code></pre></div>
+</div>
+<div id="example-1b-six-monthly-transition-period" class="section level2">
+<h2>Example 1b: Six-monthly transition period</h2>
+<p>This example is identical to 1a, but with a six-monthly rather than annual transition period.</p>
+<p>transPeriod should be entered as a fraction of a year. Eg day = 1/365, week = 1/52, calendar month = 1/12, lunar (4-week) month = 1/13, quarter = 1/4 and so on. This is best entered as a fraction rather than decimal.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;alive&quot;</span>, <span class="st">&quot;progressive&quot;</span>, <span class="st">&quot;dead&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>startingStates &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb7-3"><a href="#cb7-3"></a>cycles &lt;-<span class="st"> </span><span class="dv">10</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>transitionsMatrix &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">data =</span> <span class="kw">c</span>(<span class="fl">0.8</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>,</span>
+<span id="cb7-5"><a href="#cb7-5"></a>                                     <span class="fl">0.0</span>, <span class="fl">0.7</span>, <span class="fl">0.3</span>,</span>
+<span id="cb7-6"><a href="#cb7-6"></a>                                     <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1.0</span>), <span class="dt">ncol =</span> <span class="dv">3</span>, <span class="dt">byrow =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb7-7"><a href="#cb7-7"></a>output &lt;-<span class="st"> </span><span class="kw">runmarkov</span>(transitionsMatrix, startingStates, cycles, states)</span>
+<span id="cb7-8"><a href="#cb7-8"></a>stateCosts &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">0</span>)</span>
+<span id="cb7-9"><a href="#cb7-9"></a>stateUtilities &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.8</span>, <span class="fl">0.5</span>, <span class="dv">0</span>)</span>
+<span id="cb7-10"><a href="#cb7-10"></a>transPeriod &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span><span class="dv">2</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>discountRate &lt;-<span class="st"> </span><span class="fl">0.035</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a>costs &lt;-<span class="st"> </span><span class="kw">calcvalues</span>(output, stateCosts, transPeriod, discountRate)</span>
+<span id="cb7-13"><a href="#cb7-13"></a>QALYs &lt;-<span class="st"> </span><span class="kw">calcvalues</span>(output, stateUtilities, transPeriod, discountRate, </span>
+<span id="cb7-14"><a href="#cb7-14"></a>                    <span class="dt">QALYs =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<p>Compare the results below with Example 1a. Undiscounted costs are unchanged but undiscounted QALYs are halved. Discounted costs and QALYs take into account the shorter transition period.</p>
+<p>By convention first year costs and outcomes are not discounted. For transition periods of less than one year (i.e. where transPeriod&lt;1), this means the discount factor for the first 1/transPeriod cycles will be 1. Subsequent cycles are discounted by 1/((1+r)^(transPeriod x t)), so for a discountRate of 3.5% and a transPeriod of 1/2 (i.e. 6 months), cycles 0 and 1 will not be discounted, cycle 2 has a discount factor of 1/((1+0.035)^(0.5x2)) = 0.966, cycle 3 has a discount factor of 1/((1+0.035)^(0.5x3)) = 0.950 and so on.</p>
+<p>Note the code also works where the transition period is greater than one year, with QALYs and discounting adjusted accordingly.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">print</span>(costs)</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="co">#&gt; $undisc</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt;            alive progressive dead     total</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="co">#&gt; cycle0 100.00000     0.00000    0  100.0000</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt; cycle1  80.00000   100.00000    0  180.0000</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt; cycle2  64.00000   150.00000    0  214.0000</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt; cycle3  51.20000   169.00000    0  220.2000</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt; cycle4  40.96000   169.50000    0  210.4600</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="co">#&gt; cycle5  32.76800   159.61000    0  192.3780</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="co">#&gt; cycle6  26.21440   144.49500    0  170.7094</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="co">#&gt; cycle7  20.97152   127.36090    0  148.3324</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a><span class="co">#&gt; cycle8  16.77722   110.12415    0  126.9014</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="co">#&gt; cycle9  13.42177    93.86412    0  107.2859</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a><span class="co">#&gt; total  446.31291  1223.95417    0 1670.2671</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a><span class="co">#&gt; </span></span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="co">#&gt; $disc</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="co">#&gt;            alive progressive dead      total</span></span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="co">#&gt; cycle0 100.00000     0.00000    0  100.00000</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a><span class="co">#&gt; cycle1  80.00000   100.00000    0  180.00000</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a><span class="co">#&gt; cycle2  61.83575   144.92754    0  206.76329</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="co">#&gt; cycle3  48.62498   160.50042    0  209.12540</span></span>
+<span id="cb8-22"><a href="#cb8-22"></a><span class="co">#&gt; cycle4  38.23660   158.23006    0  196.46666</span></span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="co">#&gt; cycle5  30.06762   146.45669    0  176.52431</span></span>
+<span id="cb8-24"><a href="#cb8-24"></a><span class="co">#&gt; cycle6  23.64389   130.32621    0  153.97010</span></span>
+<span id="cb8-25"><a href="#cb8-25"></a><span class="co">#&gt; cycle7  18.59254   112.91325    0  131.50578</span></span>
+<span id="cb8-26"><a href="#cb8-26"></a><span class="co">#&gt; cycle8  14.62037    95.96683    0  110.58721</span></span>
+<span id="cb8-27"><a href="#cb8-27"></a><span class="co">#&gt; cycle9  11.49684    80.40222    0   91.89906</span></span>
+<span id="cb8-28"><a href="#cb8-28"></a><span class="co">#&gt; total  427.11858  1129.72323    0 1556.84181</span></span>
+<span id="cb8-29"><a href="#cb8-29"></a><span class="co">#&gt; </span></span>
+<span id="cb8-30"><a href="#cb8-30"></a><span class="co">#&gt; $totalUndisc</span></span>
+<span id="cb8-31"><a href="#cb8-31"></a><span class="co">#&gt; [1] 1670.267</span></span>
+<span id="cb8-32"><a href="#cb8-32"></a><span class="co">#&gt; </span></span>
+<span id="cb8-33"><a href="#cb8-33"></a><span class="co">#&gt; $totalDisc</span></span>
+<span id="cb8-34"><a href="#cb8-34"></a><span class="co">#&gt; [1] 1556.842</span></span>
+<span id="cb8-35"><a href="#cb8-35"></a><span class="co">#&gt; </span></span>
+<span id="cb8-36"><a href="#cb8-36"></a><span class="co">#&gt; $transPeriod</span></span>
+<span id="cb8-37"><a href="#cb8-37"></a><span class="co">#&gt; [1] 0.5</span></span>
+<span id="cb8-38"><a href="#cb8-38"></a><span class="co">#&gt; </span></span>
+<span id="cb8-39"><a href="#cb8-39"></a><span class="co">#&gt; $discountRate</span></span>
+<span id="cb8-40"><a href="#cb8-40"></a><span class="co">#&gt; [1] 0.035</span></span>
+<span id="cb8-41"><a href="#cb8-41"></a><span class="kw">print</span>(QALYs)</span>
+<span id="cb8-42"><a href="#cb8-42"></a><span class="co">#&gt; $undisc</span></span>
+<span id="cb8-43"><a href="#cb8-43"></a><span class="co">#&gt;             alive progressive dead      total</span></span>
+<span id="cb8-44"><a href="#cb8-44"></a><span class="co">#&gt; cycle0 0.40000000  0.00000000    0 0.40000000</span></span>
+<span id="cb8-45"><a href="#cb8-45"></a><span class="co">#&gt; cycle1 0.32000000  0.02500000    0 0.34500000</span></span>
+<span id="cb8-46"><a href="#cb8-46"></a><span class="co">#&gt; cycle2 0.25600000  0.03750000    0 0.29350000</span></span>
+<span id="cb8-47"><a href="#cb8-47"></a><span class="co">#&gt; cycle3 0.20480000  0.04225000    0 0.24705000</span></span>
+<span id="cb8-48"><a href="#cb8-48"></a><span class="co">#&gt; cycle4 0.16384000  0.04237500    0 0.20621500</span></span>
+<span id="cb8-49"><a href="#cb8-49"></a><span class="co">#&gt; cycle5 0.13107200  0.03990250    0 0.17097450</span></span>
+<span id="cb8-50"><a href="#cb8-50"></a><span class="co">#&gt; cycle6 0.10485760  0.03612375    0 0.14098135</span></span>
+<span id="cb8-51"><a href="#cb8-51"></a><span class="co">#&gt; cycle7 0.08388608  0.03184022    0 0.11572631</span></span>
+<span id="cb8-52"><a href="#cb8-52"></a><span class="co">#&gt; cycle8 0.06710886  0.02753104    0 0.09463990</span></span>
+<span id="cb8-53"><a href="#cb8-53"></a><span class="co">#&gt; cycle9 0.05368709  0.02346603    0 0.07715312</span></span>
+<span id="cb8-54"><a href="#cb8-54"></a><span class="co">#&gt; total  1.78525164  0.30598854    0 2.09124018</span></span>
+<span id="cb8-55"><a href="#cb8-55"></a><span class="co">#&gt; </span></span>
+<span id="cb8-56"><a href="#cb8-56"></a><span class="co">#&gt; $disc</span></span>
+<span id="cb8-57"><a href="#cb8-57"></a><span class="co">#&gt;             alive progressive dead      total</span></span>
+<span id="cb8-58"><a href="#cb8-58"></a><span class="co">#&gt; cycle0 0.40000000  0.00000000    0 0.40000000</span></span>
+<span id="cb8-59"><a href="#cb8-59"></a><span class="co">#&gt; cycle1 0.32000000  0.02500000    0 0.34500000</span></span>
+<span id="cb8-60"><a href="#cb8-60"></a><span class="co">#&gt; cycle2 0.24734300  0.03623188    0 0.28357488</span></span>
+<span id="cb8-61"><a href="#cb8-61"></a><span class="co">#&gt; cycle3 0.19449992  0.04012511    0 0.23462503</span></span>
+<span id="cb8-62"><a href="#cb8-62"></a><span class="co">#&gt; cycle4 0.15294639  0.03955752    0 0.19250391</span></span>
+<span id="cb8-63"><a href="#cb8-63"></a><span class="co">#&gt; cycle5 0.12027048  0.03661417    0 0.15688466</span></span>
+<span id="cb8-64"><a href="#cb8-64"></a><span class="co">#&gt; cycle6 0.09457555  0.03258155    0 0.12715710</span></span>
+<span id="cb8-65"><a href="#cb8-65"></a><span class="co">#&gt; cycle7 0.07437015  0.02822831    0 0.10259846</span></span>
+<span id="cb8-66"><a href="#cb8-66"></a><span class="co">#&gt; cycle8 0.05848150  0.02399171    0 0.08247321</span></span>
+<span id="cb8-67"><a href="#cb8-67"></a><span class="co">#&gt; cycle9 0.04598734  0.02010056    0 0.06608790</span></span>
+<span id="cb8-68"><a href="#cb8-68"></a><span class="co">#&gt; total  1.70847433  0.28243081    0 1.99090514</span></span>
+<span id="cb8-69"><a href="#cb8-69"></a><span class="co">#&gt; </span></span>
+<span id="cb8-70"><a href="#cb8-70"></a><span class="co">#&gt; $totalUndisc</span></span>
+<span id="cb8-71"><a href="#cb8-71"></a><span class="co">#&gt; [1] 2.09124</span></span>
+<span id="cb8-72"><a href="#cb8-72"></a><span class="co">#&gt; </span></span>
+<span id="cb8-73"><a href="#cb8-73"></a><span class="co">#&gt; $totalDisc</span></span>
+<span id="cb8-74"><a href="#cb8-74"></a><span class="co">#&gt; [1] 1.990905</span></span>
+<span id="cb8-75"><a href="#cb8-75"></a><span class="co">#&gt; </span></span>
+<span id="cb8-76"><a href="#cb8-76"></a><span class="co">#&gt; $transPeriod</span></span>
+<span id="cb8-77"><a href="#cb8-77"></a><span class="co">#&gt; [1] 0.5</span></span>
+<span id="cb8-78"><a href="#cb8-78"></a><span class="co">#&gt; </span></span>
+<span id="cb8-79"><a href="#cb8-79"></a><span class="co">#&gt; $discountRate</span></span>
+<span id="cb8-80"><a href="#cb8-80"></a><span class="co">#&gt; [1] 0.035</span></span></code></pre></div>
+</div>
+<div id="example-2a-a-non-stationary-model" class="section level2">
+<h2>Example 2a: A non-stationary model</h2>
+<p>This example calculates the cost and QALYs from a three-state non-stationary model (probabilities vary with time) over six cycles (cycle length = 1 year).</p>
+<p>Note the ‘dim’ argument of array() for defining transitionsMatrix must equal (nStates, nStates, cycles-1), so here it is c(3, 3, 5).</p>
+<p>aperm() transposes the array to the correct structure.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;alive&quot;</span>, <span class="st">&quot;progressive&quot;</span>, <span class="st">&quot;dead&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>startingStates &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb9-3"><a href="#cb9-3"></a>transitionsMatrix &lt;-<span class="st"> </span><span class="kw">aperm</span>(<span class="kw">array</span>(<span class="dt">data =</span> <span class="kw">c</span>(<span class="fl">0.8</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>,</span>
+<span id="cb9-4"><a href="#cb9-4"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.7</span>, <span class="fl">0.3</span>,</span>
+<span id="cb9-5"><a href="#cb9-5"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1.0</span>,</span>
+<span id="cb9-6"><a href="#cb9-6"></a></span>
+<span id="cb9-7"><a href="#cb9-7"></a>                                          <span class="fl">0.7</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>,</span>
+<span id="cb9-8"><a href="#cb9-8"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.6</span>, <span class="fl">0.4</span>,</span>
+<span id="cb9-9"><a href="#cb9-9"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1.0</span>,</span>
+<span id="cb9-10"><a href="#cb9-10"></a></span>
+<span id="cb9-11"><a href="#cb9-11"></a>                                          <span class="fl">0.6</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span>,</span>
+<span id="cb9-12"><a href="#cb9-12"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>,</span>
+<span id="cb9-13"><a href="#cb9-13"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1.0</span>,</span>
+<span id="cb9-14"><a href="#cb9-14"></a></span>
+<span id="cb9-15"><a href="#cb9-15"></a>                                          <span class="fl">0.5</span>, <span class="fl">0.1</span>, <span class="fl">0.4</span>,</span>
+<span id="cb9-16"><a href="#cb9-16"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>,</span>
+<span id="cb9-17"><a href="#cb9-17"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1.0</span>,</span>
+<span id="cb9-18"><a href="#cb9-18"></a></span>
+<span id="cb9-19"><a href="#cb9-19"></a>                                          <span class="fl">0.4</span>, <span class="fl">0.1</span>, <span class="fl">0.5</span>,</span>
+<span id="cb9-20"><a href="#cb9-20"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.3</span>, <span class="fl">0.7</span>,</span>
+<span id="cb9-21"><a href="#cb9-21"></a>                                          <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">1.0</span>),</span>
+<span id="cb9-22"><a href="#cb9-22"></a>                                 <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">5</span>)), </span>
+<span id="cb9-23"><a href="#cb9-23"></a>                           <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb9-24"><a href="#cb9-24"></a>output &lt;-<span class="st"> </span><span class="kw">runmarkov</span>(transitionsMatrix, startingStates, <span class="dt">stateNames =</span> states)</span>
+<span id="cb9-25"><a href="#cb9-25"></a><span class="co">#&gt; </span></span>
+<span id="cb9-26"><a href="#cb9-26"></a><span class="co">#&gt; rrapidmarkov by Ed Wilson</span></span>
+<span id="cb9-27"><a href="#cb9-27"></a><span class="co">#&gt; v0.1 July 2020</span></span>
+<span id="cb9-28"><a href="#cb9-28"></a><span class="co">#&gt; Number of states:  3 </span></span>
+<span id="cb9-29"><a href="#cb9-29"></a><span class="co">#&gt; State names: alive progressive dead</span></span>
+<span id="cb9-30"><a href="#cb9-30"></a><span class="co">#&gt; Cycles:  6 </span></span>
+<span id="cb9-31"><a href="#cb9-31"></a><span class="co">#&gt; State transitions matrix:</span></span>
+<span id="cb9-32"><a href="#cb9-32"></a><span class="co">#&gt; , , 1</span></span>
+<span id="cb9-33"><a href="#cb9-33"></a><span class="co">#&gt; </span></span>
+<span id="cb9-34"><a href="#cb9-34"></a><span class="co">#&gt;      [,1] [,2] [,3]</span></span>
+<span id="cb9-35"><a href="#cb9-35"></a><span class="co">#&gt; [1,]  0.8  0.1  0.1</span></span>
+<span id="cb9-36"><a href="#cb9-36"></a><span class="co">#&gt; [2,]  0.0  0.7  0.3</span></span>
+<span id="cb9-37"><a href="#cb9-37"></a><span class="co">#&gt; [3,]  0.0  0.0  1.0</span></span>
+<span id="cb9-38"><a href="#cb9-38"></a><span class="co">#&gt; </span></span>
+<span id="cb9-39"><a href="#cb9-39"></a><span class="co">#&gt; , , 2</span></span>
+<span id="cb9-40"><a href="#cb9-40"></a><span class="co">#&gt; </span></span>
+<span id="cb9-41"><a href="#cb9-41"></a><span class="co">#&gt;      [,1] [,2] [,3]</span></span>
+<span id="cb9-42"><a href="#cb9-42"></a><span class="co">#&gt; [1,]  0.7  0.1  0.2</span></span>
+<span id="cb9-43"><a href="#cb9-43"></a><span class="co">#&gt; [2,]  0.0  0.6  0.4</span></span>
+<span id="cb9-44"><a href="#cb9-44"></a><span class="co">#&gt; [3,]  0.0  0.0  1.0</span></span>
+<span id="cb9-45"><a href="#cb9-45"></a><span class="co">#&gt; </span></span>
+<span id="cb9-46"><a href="#cb9-46"></a><span class="co">#&gt; , , 3</span></span>
+<span id="cb9-47"><a href="#cb9-47"></a><span class="co">#&gt; </span></span>
+<span id="cb9-48"><a href="#cb9-48"></a><span class="co">#&gt;      [,1] [,2] [,3]</span></span>
+<span id="cb9-49"><a href="#cb9-49"></a><span class="co">#&gt; [1,]  0.6  0.1  0.3</span></span>
+<span id="cb9-50"><a href="#cb9-50"></a><span class="co">#&gt; [2,]  0.0  0.5  0.5</span></span>
+<span id="cb9-51"><a href="#cb9-51"></a><span class="co">#&gt; [3,]  0.0  0.0  1.0</span></span>
+<span id="cb9-52"><a href="#cb9-52"></a><span class="co">#&gt; </span></span>
+<span id="cb9-53"><a href="#cb9-53"></a><span class="co">#&gt; , , 4</span></span>
+<span id="cb9-54"><a href="#cb9-54"></a><span class="co">#&gt; </span></span>
+<span id="cb9-55"><a href="#cb9-55"></a><span class="co">#&gt;      [,1] [,2] [,3]</span></span>
+<span id="cb9-56"><a href="#cb9-56"></a><span class="co">#&gt; [1,]  0.5  0.1  0.4</span></span>
+<span id="cb9-57"><a href="#cb9-57"></a><span class="co">#&gt; [2,]  0.0  0.4  0.6</span></span>
+<span id="cb9-58"><a href="#cb9-58"></a><span class="co">#&gt; [3,]  0.0  0.0  1.0</span></span>
+<span id="cb9-59"><a href="#cb9-59"></a><span class="co">#&gt; </span></span>
+<span id="cb9-60"><a href="#cb9-60"></a><span class="co">#&gt; , , 5</span></span>
+<span id="cb9-61"><a href="#cb9-61"></a><span class="co">#&gt; </span></span>
+<span id="cb9-62"><a href="#cb9-62"></a><span class="co">#&gt;      [,1] [,2] [,3]</span></span>
+<span id="cb9-63"><a href="#cb9-63"></a><span class="co">#&gt; [1,]  0.4  0.1  0.5</span></span>
+<span id="cb9-64"><a href="#cb9-64"></a><span class="co">#&gt; [2,]  0.0  0.3  0.7</span></span>
+<span id="cb9-65"><a href="#cb9-65"></a><span class="co">#&gt; [3,]  0.0  0.0  1.0</span></span>
+<span id="cb9-66"><a href="#cb9-66"></a><span class="kw">print</span>(output)</span>
+<span id="cb9-67"><a href="#cb9-67"></a><span class="co">#&gt;         alive progressive   dead</span></span>
+<span id="cb9-68"><a href="#cb9-68"></a><span class="co">#&gt; cycle0 1.0000       0.000 0.0000</span></span>
+<span id="cb9-69"><a href="#cb9-69"></a><span class="co">#&gt; cycle1 0.8000       0.100 0.1000</span></span>
+<span id="cb9-70"><a href="#cb9-70"></a><span class="co">#&gt; cycle2 0.5600       0.140 0.3000</span></span>
+<span id="cb9-71"><a href="#cb9-71"></a><span class="co">#&gt; cycle3 0.3360       0.126 0.5380</span></span>
+<span id="cb9-72"><a href="#cb9-72"></a><span class="co">#&gt; cycle4 0.1680       0.084 0.7480</span></span>
+<span id="cb9-73"><a href="#cb9-73"></a><span class="co">#&gt; cycle5 0.0672       0.042 0.8908</span></span></code></pre></div>
+<p>Costs and QALYs can be applied by running the ‘calcvalues’ function as described in Example 1a:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>stateCosts &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">0</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>stateUtilities &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.8</span>, <span class="fl">0.5</span>, <span class="dv">0</span>)</span>
+<span id="cb10-3"><a href="#cb10-3"></a>costs &lt;-<span class="st"> </span><span class="kw">calcvalues</span>(output, stateCosts)</span>
+<span id="cb10-4"><a href="#cb10-4"></a>QALYs &lt;-<span class="st"> </span><span class="kw">calcvalues</span>(output, stateUtilities, <span class="dt">QALYs =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">print</span>(costs)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="co">#&gt; $undisc</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="co">#&gt;         alive progressive dead  total</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="co">#&gt; cycle0 100.00           0    0 100.00</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="co">#&gt; cycle1  80.00         100    0 180.00</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a><span class="co">#&gt; cycle2  56.00         140    0 196.00</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="co">#&gt; cycle3  33.60         126    0 159.60</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a><span class="co">#&gt; cycle4  16.80          84    0 100.80</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a><span class="co">#&gt; cycle5   6.72          42    0  48.72</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a><span class="co">#&gt; total  293.12         492    0 785.12</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a><span class="co">#&gt; </span></span>
+<span id="cb11-12"><a href="#cb11-12"></a><span class="co">#&gt; $disc</span></span>
+<span id="cb11-13"><a href="#cb11-13"></a><span class="co">#&gt;            alive progressive dead     total</span></span>
+<span id="cb11-14"><a href="#cb11-14"></a><span class="co">#&gt; cycle0 100.00000     0.00000    0 100.00000</span></span>
+<span id="cb11-15"><a href="#cb11-15"></a><span class="co">#&gt; cycle1  77.29469    96.61836    0 173.91304</span></span>
+<span id="cb11-16"><a href="#cb11-16"></a><span class="co">#&gt; cycle2  52.27660   130.69150    0 182.96810</span></span>
+<span id="cb11-17"><a href="#cb11-17"></a><span class="co">#&gt; cycle3  30.30527   113.64478    0 143.95006</span></span>
+<span id="cb11-18"><a href="#cb11-18"></a><span class="co">#&gt; cycle4  14.64023    73.20115    0  87.84138</span></span>
+<span id="cb11-19"><a href="#cb11-19"></a><span class="co">#&gt; cycle5   5.65806    35.36287    0  41.02093</span></span>
+<span id="cb11-20"><a href="#cb11-20"></a><span class="co">#&gt; total  280.17485   449.51866    0 729.69351</span></span>
+<span id="cb11-21"><a href="#cb11-21"></a><span class="co">#&gt; </span></span>
+<span id="cb11-22"><a href="#cb11-22"></a><span class="co">#&gt; $totalUndisc</span></span>
+<span id="cb11-23"><a href="#cb11-23"></a><span class="co">#&gt; [1] 785.12</span></span>
+<span id="cb11-24"><a href="#cb11-24"></a><span class="co">#&gt; </span></span>
+<span id="cb11-25"><a href="#cb11-25"></a><span class="co">#&gt; $totalDisc</span></span>
+<span id="cb11-26"><a href="#cb11-26"></a><span class="co">#&gt; [1] 729.6935</span></span>
+<span id="cb11-27"><a href="#cb11-27"></a><span class="co">#&gt; </span></span>
+<span id="cb11-28"><a href="#cb11-28"></a><span class="co">#&gt; $transPeriod</span></span>
+<span id="cb11-29"><a href="#cb11-29"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb11-30"><a href="#cb11-30"></a><span class="co">#&gt; </span></span>
+<span id="cb11-31"><a href="#cb11-31"></a><span class="co">#&gt; $discountRate</span></span>
+<span id="cb11-32"><a href="#cb11-32"></a><span class="co">#&gt; [1] 0.035</span></span>
+<span id="cb11-33"><a href="#cb11-33"></a><span class="kw">print</span>(QALYs)</span>
+<span id="cb11-34"><a href="#cb11-34"></a><span class="co">#&gt; $undisc</span></span>
+<span id="cb11-35"><a href="#cb11-35"></a><span class="co">#&gt;          alive progressive dead   total</span></span>
+<span id="cb11-36"><a href="#cb11-36"></a><span class="co">#&gt; cycle0 0.80000       0.000    0 0.80000</span></span>
+<span id="cb11-37"><a href="#cb11-37"></a><span class="co">#&gt; cycle1 0.64000       0.050    0 0.69000</span></span>
+<span id="cb11-38"><a href="#cb11-38"></a><span class="co">#&gt; cycle2 0.44800       0.070    0 0.51800</span></span>
+<span id="cb11-39"><a href="#cb11-39"></a><span class="co">#&gt; cycle3 0.26880       0.063    0 0.33180</span></span>
+<span id="cb11-40"><a href="#cb11-40"></a><span class="co">#&gt; cycle4 0.13440       0.042    0 0.17640</span></span>
+<span id="cb11-41"><a href="#cb11-41"></a><span class="co">#&gt; cycle5 0.05376       0.021    0 0.07476</span></span>
+<span id="cb11-42"><a href="#cb11-42"></a><span class="co">#&gt; total  2.34496       0.246    0 2.59096</span></span>
+<span id="cb11-43"><a href="#cb11-43"></a><span class="co">#&gt; </span></span>
+<span id="cb11-44"><a href="#cb11-44"></a><span class="co">#&gt; $disc</span></span>
+<span id="cb11-45"><a href="#cb11-45"></a><span class="co">#&gt;             alive progressive dead      total</span></span>
+<span id="cb11-46"><a href="#cb11-46"></a><span class="co">#&gt; cycle0 0.80000000  0.00000000    0 0.80000000</span></span>
+<span id="cb11-47"><a href="#cb11-47"></a><span class="co">#&gt; cycle1 0.61835749  0.04830918    0 0.66666667</span></span>
+<span id="cb11-48"><a href="#cb11-48"></a><span class="co">#&gt; cycle2 0.41821279  0.06534575    0 0.48355854</span></span>
+<span id="cb11-49"><a href="#cb11-49"></a><span class="co">#&gt; cycle3 0.24244220  0.05682239    0 0.29926459</span></span>
+<span id="cb11-50"><a href="#cb11-50"></a><span class="co">#&gt; cycle4 0.11712184  0.03660057    0 0.15372241</span></span>
+<span id="cb11-51"><a href="#cb11-51"></a><span class="co">#&gt; cycle5 0.04526448  0.01768144    0 0.06294591</span></span>
+<span id="cb11-52"><a href="#cb11-52"></a><span class="co">#&gt; total  2.24139879  0.22475933    0 2.46615812</span></span>
+<span id="cb11-53"><a href="#cb11-53"></a><span class="co">#&gt; </span></span>
+<span id="cb11-54"><a href="#cb11-54"></a><span class="co">#&gt; $totalUndisc</span></span>
+<span id="cb11-55"><a href="#cb11-55"></a><span class="co">#&gt; [1] 2.59096</span></span>
+<span id="cb11-56"><a href="#cb11-56"></a><span class="co">#&gt; </span></span>
+<span id="cb11-57"><a href="#cb11-57"></a><span class="co">#&gt; $totalDisc</span></span>
+<span id="cb11-58"><a href="#cb11-58"></a><span class="co">#&gt; [1] 2.466158</span></span>
+<span id="cb11-59"><a href="#cb11-59"></a><span class="co">#&gt; </span></span>
+<span id="cb11-60"><a href="#cb11-60"></a><span class="co">#&gt; $transPeriod</span></span>
+<span id="cb11-61"><a href="#cb11-61"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb11-62"><a href="#cb11-62"></a><span class="co">#&gt; </span></span>
+<span id="cb11-63"><a href="#cb11-63"></a><span class="co">#&gt; $discountRate</span></span>
+<span id="cb11-64"><a href="#cb11-64"></a><span class="co">#&gt; [1] 0.035</span></span></code></pre></div>
+</div>
+<div id="example-2b-another-non-stationary-model" class="section level2">
+<h2>Example 2b: Another non-stationary model</h2>
+<p>Two state, non-stationary model, state names not specified, 50/50 split between states at t=0, run for four cycles.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>startingStates &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>)</span>
+<span id="cb12-2"><a href="#cb12-2"></a>transitionsMatrix &lt;-<span class="st"> </span><span class="kw">aperm</span>(<span class="kw">array</span>(<span class="dt">data =</span> <span class="kw">c</span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>,</span>
+<span id="cb12-3"><a href="#cb12-3"></a>                                          <span class="fl">0.3</span>, <span class="fl">0.7</span>,</span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a>                                          <span class="dv">1</span>, <span class="dv">0</span>,</span>
+<span id="cb12-6"><a href="#cb12-6"></a>                                          <span class="dv">0</span>, <span class="dv">1</span>,</span>
+<span id="cb12-7"><a href="#cb12-7"></a></span>
+<span id="cb12-8"><a href="#cb12-8"></a>                                          <span class="dv">0</span>, <span class="dv">1</span>,</span>
+<span id="cb12-9"><a href="#cb12-9"></a>                                          <span class="fl">0.5</span>, <span class="fl">0.5</span>),</span>
+<span id="cb12-10"><a href="#cb12-10"></a>                                 <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>)), </span>
+<span id="cb12-11"><a href="#cb12-11"></a>                           <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb12-12"><a href="#cb12-12"></a></span>
+<span id="cb12-13"><a href="#cb12-13"></a>output &lt;-<span class="st"> </span><span class="kw">runmarkov</span>(transitionsMatrix, startingStates)</span>
+<span id="cb12-14"><a href="#cb12-14"></a><span class="co">#&gt; </span></span>
+<span id="cb12-15"><a href="#cb12-15"></a><span class="co">#&gt; rrapidmarkov by Ed Wilson</span></span>
+<span id="cb12-16"><a href="#cb12-16"></a><span class="co">#&gt; v0.1 July 2020</span></span>
+<span id="cb12-17"><a href="#cb12-17"></a><span class="co">#&gt; Number of states:  2 </span></span>
+<span id="cb12-18"><a href="#cb12-18"></a><span class="co">#&gt; State names: state1 state2</span></span>
+<span id="cb12-19"><a href="#cb12-19"></a><span class="co">#&gt; Cycles:  4 </span></span>
+<span id="cb12-20"><a href="#cb12-20"></a><span class="co">#&gt; State transitions matrix:</span></span>
+<span id="cb12-21"><a href="#cb12-21"></a><span class="co">#&gt; , , 1</span></span>
+<span id="cb12-22"><a href="#cb12-22"></a><span class="co">#&gt; </span></span>
+<span id="cb12-23"><a href="#cb12-23"></a><span class="co">#&gt;      [,1] [,2]</span></span>
+<span id="cb12-24"><a href="#cb12-24"></a><span class="co">#&gt; [1,]  0.8  0.2</span></span>
+<span id="cb12-25"><a href="#cb12-25"></a><span class="co">#&gt; [2,]  0.3  0.7</span></span>
+<span id="cb12-26"><a href="#cb12-26"></a><span class="co">#&gt; </span></span>
+<span id="cb12-27"><a href="#cb12-27"></a><span class="co">#&gt; , , 2</span></span>
+<span id="cb12-28"><a href="#cb12-28"></a><span class="co">#&gt; </span></span>
+<span id="cb12-29"><a href="#cb12-29"></a><span class="co">#&gt;      [,1] [,2]</span></span>
+<span id="cb12-30"><a href="#cb12-30"></a><span class="co">#&gt; [1,]    1    0</span></span>
+<span id="cb12-31"><a href="#cb12-31"></a><span class="co">#&gt; [2,]    0    1</span></span>
+<span id="cb12-32"><a href="#cb12-32"></a><span class="co">#&gt; </span></span>
+<span id="cb12-33"><a href="#cb12-33"></a><span class="co">#&gt; , , 3</span></span>
+<span id="cb12-34"><a href="#cb12-34"></a><span class="co">#&gt; </span></span>
+<span id="cb12-35"><a href="#cb12-35"></a><span class="co">#&gt;      [,1] [,2]</span></span>
+<span id="cb12-36"><a href="#cb12-36"></a><span class="co">#&gt; [1,]  0.0  1.0</span></span>
+<span id="cb12-37"><a href="#cb12-37"></a><span class="co">#&gt; [2,]  0.5  0.5</span></span>
+<span id="cb12-38"><a href="#cb12-38"></a><span class="kw">print</span>(output)</span>
+<span id="cb12-39"><a href="#cb12-39"></a><span class="co">#&gt;        state1 state2</span></span>
+<span id="cb12-40"><a href="#cb12-40"></a><span class="co">#&gt; cycle0  0.500  0.500</span></span>
+<span id="cb12-41"><a href="#cb12-41"></a><span class="co">#&gt; cycle1  0.550  0.450</span></span>
+<span id="cb12-42"><a href="#cb12-42"></a><span class="co">#&gt; cycle2  0.550  0.450</span></span>
+<span id="cb12-43"><a href="#cb12-43"></a><span class="co">#&gt; cycle3  0.225  0.775</span></span></code></pre></div>
+<p>Again, costs and QALYs can be applied by running the ‘calcvalues’ function as described in Example 1a:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>stateCosts &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">1000</span>)</span>
+<span id="cb13-2"><a href="#cb13-2"></a>stateUtilities &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.8</span>, <span class="dv">0</span>)</span>
+<span id="cb13-3"><a href="#cb13-3"></a>costs &lt;-<span class="st"> </span><span class="kw">calcvalues</span>(output, stateCosts)</span>
+<span id="cb13-4"><a href="#cb13-4"></a>QALYs &lt;-<span class="st"> </span><span class="kw">calcvalues</span>(output, stateUtilities, <span class="dt">QALYs =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">print</span>(costs)</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="co">#&gt; $undisc</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="co">#&gt;        state1 state2  total</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="co">#&gt; cycle0   50.0    500  550.0</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="co">#&gt; cycle1   55.0    450  505.0</span></span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="co">#&gt; cycle2   55.0    450  505.0</span></span>
+<span id="cb14-7"><a href="#cb14-7"></a><span class="co">#&gt; cycle3   22.5    775  797.5</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="co">#&gt; total   182.5   2175 2357.5</span></span>
+<span id="cb14-9"><a href="#cb14-9"></a><span class="co">#&gt; </span></span>
+<span id="cb14-10"><a href="#cb14-10"></a><span class="co">#&gt; $disc</span></span>
+<span id="cb14-11"><a href="#cb14-11"></a><span class="co">#&gt;           state1    state2     total</span></span>
+<span id="cb14-12"><a href="#cb14-12"></a><span class="co">#&gt; cycle0  50.00000  500.0000  550.0000</span></span>
+<span id="cb14-13"><a href="#cb14-13"></a><span class="co">#&gt; cycle1  53.14010  434.7826  487.9227</span></span>
+<span id="cb14-14"><a href="#cb14-14"></a><span class="co">#&gt; cycle2  51.34309  420.0798  471.4229</span></span>
+<span id="cb14-15"><a href="#cb14-15"></a><span class="co">#&gt; cycle3  20.29371  699.0056  719.2993</span></span>
+<span id="cb14-16"><a href="#cb14-16"></a><span class="co">#&gt; total  174.77690 2053.8680 2228.6449</span></span>
+<span id="cb14-17"><a href="#cb14-17"></a><span class="co">#&gt; </span></span>
+<span id="cb14-18"><a href="#cb14-18"></a><span class="co">#&gt; $totalUndisc</span></span>
+<span id="cb14-19"><a href="#cb14-19"></a><span class="co">#&gt; [1] 2357.5</span></span>
+<span id="cb14-20"><a href="#cb14-20"></a><span class="co">#&gt; </span></span>
+<span id="cb14-21"><a href="#cb14-21"></a><span class="co">#&gt; $totalDisc</span></span>
+<span id="cb14-22"><a href="#cb14-22"></a><span class="co">#&gt; [1] 2228.645</span></span>
+<span id="cb14-23"><a href="#cb14-23"></a><span class="co">#&gt; </span></span>
+<span id="cb14-24"><a href="#cb14-24"></a><span class="co">#&gt; $transPeriod</span></span>
+<span id="cb14-25"><a href="#cb14-25"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb14-26"><a href="#cb14-26"></a><span class="co">#&gt; </span></span>
+<span id="cb14-27"><a href="#cb14-27"></a><span class="co">#&gt; $discountRate</span></span>
+<span id="cb14-28"><a href="#cb14-28"></a><span class="co">#&gt; [1] 0.035</span></span>
+<span id="cb14-29"><a href="#cb14-29"></a><span class="kw">print</span>(QALYs)</span>
+<span id="cb14-30"><a href="#cb14-30"></a><span class="co">#&gt; $undisc</span></span>
+<span id="cb14-31"><a href="#cb14-31"></a><span class="co">#&gt;        state1 state2 total</span></span>
+<span id="cb14-32"><a href="#cb14-32"></a><span class="co">#&gt; cycle0   0.40      0  0.40</span></span>
+<span id="cb14-33"><a href="#cb14-33"></a><span class="co">#&gt; cycle1   0.44      0  0.44</span></span>
+<span id="cb14-34"><a href="#cb14-34"></a><span class="co">#&gt; cycle2   0.44      0  0.44</span></span>
+<span id="cb14-35"><a href="#cb14-35"></a><span class="co">#&gt; cycle3   0.18      0  0.18</span></span>
+<span id="cb14-36"><a href="#cb14-36"></a><span class="co">#&gt; total    1.46      0  1.46</span></span>
+<span id="cb14-37"><a href="#cb14-37"></a><span class="co">#&gt; </span></span>
+<span id="cb14-38"><a href="#cb14-38"></a><span class="co">#&gt; $disc</span></span>
+<span id="cb14-39"><a href="#cb14-39"></a><span class="co">#&gt;           state1 state2     total</span></span>
+<span id="cb14-40"><a href="#cb14-40"></a><span class="co">#&gt; cycle0 0.4000000      0 0.4000000</span></span>
+<span id="cb14-41"><a href="#cb14-41"></a><span class="co">#&gt; cycle1 0.4251208      0 0.4251208</span></span>
+<span id="cb14-42"><a href="#cb14-42"></a><span class="co">#&gt; cycle2 0.4107447      0 0.4107447</span></span>
+<span id="cb14-43"><a href="#cb14-43"></a><span class="co">#&gt; cycle3 0.1623497      0 0.1623497</span></span>
+<span id="cb14-44"><a href="#cb14-44"></a><span class="co">#&gt; total  1.3982152      0 1.3982152</span></span>
+<span id="cb14-45"><a href="#cb14-45"></a><span class="co">#&gt; </span></span>
+<span id="cb14-46"><a href="#cb14-46"></a><span class="co">#&gt; $totalUndisc</span></span>
+<span id="cb14-47"><a href="#cb14-47"></a><span class="co">#&gt; [1] 1.46</span></span>
+<span id="cb14-48"><a href="#cb14-48"></a><span class="co">#&gt; </span></span>
+<span id="cb14-49"><a href="#cb14-49"></a><span class="co">#&gt; $totalDisc</span></span>
+<span id="cb14-50"><a href="#cb14-50"></a><span class="co">#&gt; [1] 1.398215</span></span>
+<span id="cb14-51"><a href="#cb14-51"></a><span class="co">#&gt; </span></span>
+<span id="cb14-52"><a href="#cb14-52"></a><span class="co">#&gt; $transPeriod</span></span>
+<span id="cb14-53"><a href="#cb14-53"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb14-54"><a href="#cb14-54"></a><span class="co">#&gt; </span></span>
+<span id="cb14-55"><a href="#cb14-55"></a><span class="co">#&gt; $discountRate</span></span>
+<span id="cb14-56"><a href="#cb14-56"></a><span class="co">#&gt; [1] 0.035</span></span></code></pre></div>
+</div>
+<div id="example-3-using-the-converttomatrices-helper-function" class="section level2">
+<h2>Example 3: Using the converttomatrices() helper function</h2>
+<p>Directly defining the transitionsMatrix is a little unwieldy for probabilistic analyses (Monte Carlo simulation), especially for non-stationary models. My preferred format when sampling is for every row of a table (which I call ‘probs’) to contain a complete set of all probabilities used in one iteration of a model. In a non-stationary Markov model, this leads to a lot of columns (nStates^2 x (cycles-1)), but I find the neatness of one row per simulation outweighs this. However, psamarkov() requires a list with a 3d transitions matrix for each simulation as a separate item.</p>
+<p>converttomatrices() converts the flat ‘probs’ table to a list where each list item contains the state-transitions matrix for each Monte Carlo simulation. This can be used as the transitionsMatrix parameter passed to psamarkov().</p>
+<div id="example-3a-stationary-model" class="section level3">
+<h3>Example 3a: Stationary model</h3>
+<p>probs must contain a set of sampled transition probabilities as a matrix of size n x c, where n = number of Monte Carlo simulations and c = nStates^2 (where nStates = number of health states).</p>
+<p>The column order for, say, a 2 state model must be: FromState1toState1, FromState1toState2, FromState2toState1, FromState2toState2.</p>
+<p>This example is a model with three states, run for three cycles. Transition probabilities are sampled from Dirichlet distributions using gtools::rdirichlet().</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">library</span>(gtools)</span>
+<span id="cb15-2"><a href="#cb15-2"></a>sims &lt;-<span class="st"> </span><span class="dv">10</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="kw">set.seed</span>(<span class="dv">34</span>)</span>
+<span id="cb15-4"><a href="#cb15-4"></a>probs &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">80</span>, <span class="dv">10</span>, <span class="dv">10</span>)),</span>
+<span id="cb15-5"><a href="#cb15-5"></a>               <span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">7</span>, <span class="dv">3</span>)),</span>
+<span id="cb15-6"><a href="#cb15-6"></a>               <span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span>
+<span id="cb15-7"><a href="#cb15-7"></a><span class="kw">colnames</span>(probs) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;S1&gt;S1&quot;</span>, <span class="st">&quot;S1&gt;S2&quot;</span>, <span class="st">&quot;S1&gt;S3&quot;</span>,</span>
+<span id="cb15-8"><a href="#cb15-8"></a>                     <span class="st">&quot;S2&gt;S1&quot;</span>, <span class="st">&quot;S2&gt;S2&quot;</span>, <span class="st">&quot;S2&gt;S3&quot;</span>,</span>
+<span id="cb15-9"><a href="#cb15-9"></a>                     <span class="st">&quot;S3&gt;S1&quot;</span>, <span class="st">&quot;S3&gt;S2&quot;</span>, <span class="st">&quot;S3&gt;S3&quot;</span>)</span>
+<span id="cb15-10"><a href="#cb15-10"></a>states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;alive&quot;</span>, <span class="st">&quot;progressive&quot;</span>, <span class="st">&quot;dead&quot;</span>)</span>
+<span id="cb15-11"><a href="#cb15-11"></a>cycles &lt;-<span class="st"> </span><span class="dv">3</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a>transitionsMatrix &lt;-<span class="st"> </span><span class="kw">converttomatrices</span>(states, probs, cycles)</span></code></pre></div>
+<p>There are <em>sims</em> sets of matrices (here sims=10). The first two are shown below. Note that within each <em>sim</em>, the transitions matrices for each cycle are identical: this is a stationary model, but the matrices are different between each sim, representing a possible realisation of the world based on the Dirichlet samples.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>transitionsMatrix[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]</span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="co">#&gt; $sim1</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="co">#&gt; , , cycle1</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a><span class="co">#&gt; </span></span>
+<span id="cb16-5"><a href="#cb16-5"></a><span class="co">#&gt;                 alive progressive       dead</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a><span class="co">#&gt; alive       0.8369843  0.07949851 0.08351716</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a><span class="co">#&gt; progressive 0.0000000  0.73438885 0.26561115</span></span>
+<span id="cb16-8"><a href="#cb16-8"></a><span class="co">#&gt; dead        0.0000000  0.00000000 1.00000000</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a><span class="co">#&gt; </span></span>
+<span id="cb16-10"><a href="#cb16-10"></a><span class="co">#&gt; , , cycle2</span></span>
+<span id="cb16-11"><a href="#cb16-11"></a><span class="co">#&gt; </span></span>
+<span id="cb16-12"><a href="#cb16-12"></a><span class="co">#&gt;                 alive progressive       dead</span></span>
+<span id="cb16-13"><a href="#cb16-13"></a><span class="co">#&gt; alive       0.8369843  0.07949851 0.08351716</span></span>
+<span id="cb16-14"><a href="#cb16-14"></a><span class="co">#&gt; progressive 0.0000000  0.73438885 0.26561115</span></span>
+<span id="cb16-15"><a href="#cb16-15"></a><span class="co">#&gt; dead        0.0000000  0.00000000 1.00000000</span></span>
+<span id="cb16-16"><a href="#cb16-16"></a><span class="co">#&gt; </span></span>
+<span id="cb16-17"><a href="#cb16-17"></a><span class="co">#&gt; </span></span>
+<span id="cb16-18"><a href="#cb16-18"></a><span class="co">#&gt; $sim2</span></span>
+<span id="cb16-19"><a href="#cb16-19"></a><span class="co">#&gt; , , cycle1</span></span>
+<span id="cb16-20"><a href="#cb16-20"></a><span class="co">#&gt; </span></span>
+<span id="cb16-21"><a href="#cb16-21"></a><span class="co">#&gt;                 alive progressive       dead</span></span>
+<span id="cb16-22"><a href="#cb16-22"></a><span class="co">#&gt; alive       0.8345167  0.09287969 0.07260365</span></span>
+<span id="cb16-23"><a href="#cb16-23"></a><span class="co">#&gt; progressive 0.0000000  0.90452545 0.09547455</span></span>
+<span id="cb16-24"><a href="#cb16-24"></a><span class="co">#&gt; dead        0.0000000  0.00000000 1.00000000</span></span>
+<span id="cb16-25"><a href="#cb16-25"></a><span class="co">#&gt; </span></span>
+<span id="cb16-26"><a href="#cb16-26"></a><span class="co">#&gt; , , cycle2</span></span>
+<span id="cb16-27"><a href="#cb16-27"></a><span class="co">#&gt; </span></span>
+<span id="cb16-28"><a href="#cb16-28"></a><span class="co">#&gt;                 alive progressive       dead</span></span>
+<span id="cb16-29"><a href="#cb16-29"></a><span class="co">#&gt; alive       0.8345167  0.09287969 0.07260365</span></span>
+<span id="cb16-30"><a href="#cb16-30"></a><span class="co">#&gt; progressive 0.0000000  0.90452545 0.09547455</span></span>
+<span id="cb16-31"><a href="#cb16-31"></a><span class="co">#&gt; dead        0.0000000  0.00000000 1.00000000</span></span></code></pre></div>
+</div>
+<div id="example-3b-non-stationary-model" class="section level3">
+<h3>Example 3b: Non-stationary model</h3>
+<p>probs must contain a set of sampled transition probabilities as a matrix of size n x c, where n = number of Monte Carlo simulations and c = (nStates^2)*(cycles-1) columns, (where nStates = number of health states, cycles = number of cycles).</p>
+<p>The column order for, say, a 2 state model with 3 cycles must be: Cycle1FromState1toState1, Cycle1FromState1toState2, Cycle1FromState2toState1, Cycle1FromState2toState2, Cycle2FromState1toState1, Cycle2FromState1toState2, Cycle2FromState2toState1, Cycle2FromState2toState2.</p>
+<p>This example is a model with three states, run for three cycles. Transition probabilities are sampled from Dirichlet distributions using gtools::rdirichlet(), with a different distribution specified for each cycle. Specifically, there is a 10% probability of moving from ‘alive’ to ‘progressive’ in cycle 1, rising to 20% in cycle 2.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">library</span>(gtools)</span>
+<span id="cb17-2"><a href="#cb17-2"></a>sims &lt;-<span class="st"> </span><span class="dv">10</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a><span class="kw">set.seed</span>(<span class="dv">34</span>)</span>
+<span id="cb17-4"><a href="#cb17-4"></a>probs =<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">80</span>, <span class="dv">10</span>, <span class="dv">10</span>)),</span>
+<span id="cb17-5"><a href="#cb17-5"></a>             <span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">7</span>, <span class="dv">3</span>)),</span>
+<span id="cb17-6"><a href="#cb17-6"></a>             <span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)),</span>
+<span id="cb17-7"><a href="#cb17-7"></a></span>
+<span id="cb17-8"><a href="#cb17-8"></a>             <span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">70</span>, <span class="dv">20</span>, <span class="dv">10</span>)),</span>
+<span id="cb17-9"><a href="#cb17-9"></a>             <span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">7</span>, <span class="dv">3</span>)),</span>
+<span id="cb17-10"><a href="#cb17-10"></a>             <span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span>
+<span id="cb17-11"><a href="#cb17-11"></a></span>
+<span id="cb17-12"><a href="#cb17-12"></a><span class="kw">colnames</span>(probs) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;c1_S1&gt;S1&quot;</span>, <span class="st">&quot;c1_S1&gt;S2&quot;</span>, <span class="st">&quot;c1_S1&gt;S3&quot;</span>,</span>
+<span id="cb17-13"><a href="#cb17-13"></a>                     <span class="st">&quot;c1_S2&gt;S1&quot;</span>, <span class="st">&quot;c1_S2&gt;S2&quot;</span>, <span class="st">&quot;c1_S2&gt;S3&quot;</span>,</span>
+<span id="cb17-14"><a href="#cb17-14"></a>                     <span class="st">&quot;c1_S3&gt;S1&quot;</span>, <span class="st">&quot;c1_S3&gt;S2&quot;</span>, <span class="st">&quot;c1_S3&gt;S3&quot;</span>,</span>
+<span id="cb17-15"><a href="#cb17-15"></a></span>
+<span id="cb17-16"><a href="#cb17-16"></a>                    <span class="st">&quot;c2_S1&gt;S1&quot;</span>, <span class="st">&quot;c2_S1&gt;S2&quot;</span>, <span class="st">&quot;c2_S1&gt;S3&quot;</span>,</span>
+<span id="cb17-17"><a href="#cb17-17"></a>                    <span class="st">&quot;c2_S2&gt;S1&quot;</span>, <span class="st">&quot;c2_S2&gt;S2&quot;</span>, <span class="st">&quot;c2_S2&gt;S3&quot;</span>,</span>
+<span id="cb17-18"><a href="#cb17-18"></a>                    <span class="st">&quot;c2_S3&gt;S1&quot;</span>, <span class="st">&quot;c2_S3&gt;S2&quot;</span>, <span class="st">&quot;c2_S3&gt;S3&quot;</span>)</span>
+<span id="cb17-19"><a href="#cb17-19"></a>states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;alive&quot;</span>, <span class="st">&quot;progressive&quot;</span>, <span class="st">&quot;dead&quot;</span>)</span>
+<span id="cb17-20"><a href="#cb17-20"></a>transitionsMatrix &lt;-<span class="st"> </span><span class="kw">converttomatrices</span>(states, probs)</span></code></pre></div>
+<p>transitionsMatrix contains <em>sims</em> sets of matrices (here sims=10). The first two are shown below. Note that within each <em>sim</em>, the transitions matrices for each cycle are different: this is a non-stationary model. The sets of matrices are different between each sim, representing a possible realisation of the world based on the input Dirichlet distributions.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>transitionsMatrix[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]</span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="co">#&gt; $sim1</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a><span class="co">#&gt; , , cycle1</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a><span class="co">#&gt; </span></span>
+<span id="cb18-5"><a href="#cb18-5"></a><span class="co">#&gt;                 alive progressive       dead</span></span>
+<span id="cb18-6"><a href="#cb18-6"></a><span class="co">#&gt; alive       0.8369843  0.07949851 0.08351716</span></span>
+<span id="cb18-7"><a href="#cb18-7"></a><span class="co">#&gt; progressive 0.0000000  0.73438885 0.26561115</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a><span class="co">#&gt; dead        0.0000000  0.00000000 1.00000000</span></span>
+<span id="cb18-9"><a href="#cb18-9"></a><span class="co">#&gt; </span></span>
+<span id="cb18-10"><a href="#cb18-10"></a><span class="co">#&gt; , , cycle2</span></span>
+<span id="cb18-11"><a href="#cb18-11"></a><span class="co">#&gt; </span></span>
+<span id="cb18-12"><a href="#cb18-12"></a><span class="co">#&gt;                 alive progressive       dead</span></span>
+<span id="cb18-13"><a href="#cb18-13"></a><span class="co">#&gt; alive       0.6424033   0.2231266 0.13447010</span></span>
+<span id="cb18-14"><a href="#cb18-14"></a><span class="co">#&gt; progressive 0.0000000   0.9095967 0.09040328</span></span>
+<span id="cb18-15"><a href="#cb18-15"></a><span class="co">#&gt; dead        0.0000000   0.0000000 1.00000000</span></span>
+<span id="cb18-16"><a href="#cb18-16"></a><span class="co">#&gt; </span></span>
+<span id="cb18-17"><a href="#cb18-17"></a><span class="co">#&gt; </span></span>
+<span id="cb18-18"><a href="#cb18-18"></a><span class="co">#&gt; $sim2</span></span>
+<span id="cb18-19"><a href="#cb18-19"></a><span class="co">#&gt; , , cycle1</span></span>
+<span id="cb18-20"><a href="#cb18-20"></a><span class="co">#&gt; </span></span>
+<span id="cb18-21"><a href="#cb18-21"></a><span class="co">#&gt;                 alive progressive       dead</span></span>
+<span id="cb18-22"><a href="#cb18-22"></a><span class="co">#&gt; alive       0.8345167  0.09287969 0.07260365</span></span>
+<span id="cb18-23"><a href="#cb18-23"></a><span class="co">#&gt; progressive 0.0000000  0.90452545 0.09547455</span></span>
+<span id="cb18-24"><a href="#cb18-24"></a><span class="co">#&gt; dead        0.0000000  0.00000000 1.00000000</span></span>
+<span id="cb18-25"><a href="#cb18-25"></a><span class="co">#&gt; </span></span>
+<span id="cb18-26"><a href="#cb18-26"></a><span class="co">#&gt; , , cycle2</span></span>
+<span id="cb18-27"><a href="#cb18-27"></a><span class="co">#&gt; </span></span>
+<span id="cb18-28"><a href="#cb18-28"></a><span class="co">#&gt;                 alive progressive      dead</span></span>
+<span id="cb18-29"><a href="#cb18-29"></a><span class="co">#&gt; alive       0.7088202   0.1728245 0.1183553</span></span>
+<span id="cb18-30"><a href="#cb18-30"></a><span class="co">#&gt; progressive 0.0000000   0.7054129 0.2945871</span></span>
+<span id="cb18-31"><a href="#cb18-31"></a><span class="co">#&gt; dead        0.0000000   0.0000000 1.0000000</span></span></code></pre></div>
+</div>
+</div>
+<div id="example-4-bringing-everything-together" class="section level2">
+<h2>Example 4: Bringing everything together</h2>
+<p>This is where we start to generate meaningful analyses with some probabilistic modelling. We keep the same three-state model, “alive”, “progressive” and “dead”, and begin again with a stationary example, before moving on to a more plausible (but complicated) non-stationary one.</p>
+<div id="example-4a-probabilistic-modelling-stationary-model" class="section level3">
+<h3>Example 4a: Probabilistic modelling, stationary model</h3>
+<p>First, we generate <em>sims</em> sets of PSA samples of the transition probabilities, costs and health state utilities from appropriate distributions. Here, Dirichlet for probabilities, gamma for costs, and beta for health state utilities.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">library</span>(gtools)</span>
+<span id="cb19-2"><a href="#cb19-2"></a>sims &lt;-<span class="st"> </span><span class="dv">10</span></span>
+<span id="cb19-3"><a href="#cb19-3"></a><span class="kw">set.seed</span>(<span class="dv">34</span>)</span>
+<span id="cb19-4"><a href="#cb19-4"></a>probs =<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">80</span>, <span class="dv">10</span>, <span class="dv">10</span>)),</span>
+<span id="cb19-5"><a href="#cb19-5"></a>              <span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">7</span>, <span class="dv">3</span>)),</span>
+<span id="cb19-6"><a href="#cb19-6"></a>              <span class="kw">rdirichlet</span>(sims,<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)))</span>
+<span id="cb19-7"><a href="#cb19-7"></a><span class="kw">colnames</span>(probs) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;S1&gt;S1&quot;</span>, <span class="st">&quot;S1&gt;S2&quot;</span>, <span class="st">&quot;S1&gt;S3&quot;</span>,</span>
+<span id="cb19-8"><a href="#cb19-8"></a>                     <span class="st">&quot;S2&gt;S1&quot;</span>, <span class="st">&quot;S2&gt;S2&quot;</span>, <span class="st">&quot;S2&gt;S3&quot;</span>,</span>
+<span id="cb19-9"><a href="#cb19-9"></a>                     <span class="st">&quot;S3&gt;S1&quot;</span>, <span class="st">&quot;S3&gt;S2&quot;</span>, <span class="st">&quot;S3&gt;S3&quot;</span>)</span>
+<span id="cb19-10"><a href="#cb19-10"></a>stateCosts &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">rgamma</span>(sims, <span class="dv">10</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">50</span>),<span class="kw">rgamma</span>(sims, <span class="dv">1</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">1000</span>), </span>
+<span id="cb19-11"><a href="#cb19-11"></a>                    <span class="kw">rep</span>(<span class="dv">0</span>, sims))</span>
+<span id="cb19-12"><a href="#cb19-12"></a>stateUtilities &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">rbeta</span>(sims, <span class="dv">800</span>, <span class="dv">200</span>), <span class="kw">rbeta</span>(sims, <span class="dv">50</span>, <span class="dv">50</span>),</span>
+<span id="cb19-13"><a href="#cb19-13"></a>                        <span class="kw">rep</span>(<span class="dv">0</span>, sims))</span></code></pre></div>
+<p>We then specify the state names, starting states, cycles, and convert the flat ‘probs’ matrix using converttomatrices() helper function. The Markov traces are calculated with a call to psamarkov().</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;alive&quot;</span>, <span class="st">&quot;progressive&quot;</span>, <span class="st">&quot;dead&quot;</span>)</span>
+<span id="cb20-2"><a href="#cb20-2"></a>startingStates &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb20-3"><a href="#cb20-3"></a>cycles &lt;-<span class="st"> </span><span class="dv">10</span></span>
+<span id="cb20-4"><a href="#cb20-4"></a>transitionsMatrix &lt;-<span class="st"> </span><span class="kw">converttomatrices</span>(states, probs, cycles)</span>
+<span id="cb20-5"><a href="#cb20-5"></a>output &lt;-<span class="st"> </span><span class="kw">psamarkov</span>(transitionsMatrix, startingStates, cycles, states)</span></code></pre></div>
+<p>psamarkov() returns a list containing the means, upper and lower 95% credibility limits for each state at each time point, as well as an array containing the entire raw data from each sim (the first two slices of which are shown below):</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">print</span>(output<span class="op">$</span>means)</span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="co">#&gt;            alive progressive       dead</span></span>
+<span id="cb21-3"><a href="#cb21-3"></a><span class="co">#&gt; cycle0 1.0000000  0.00000000 0.00000000</span></span>
+<span id="cb21-4"><a href="#cb21-4"></a><span class="co">#&gt; cycle1 0.8161259  0.09237525 0.09149884</span></span>
+<span id="cb21-5"><a href="#cb21-5"></a><span class="co">#&gt; cycle2 0.6669196  0.13712891 0.19595146</span></span>
+<span id="cb21-6"><a href="#cb21-6"></a><span class="co">#&gt; cycle3 0.5456986  0.15603214 0.29826924</span></span>
+<span id="cb21-7"><a href="#cb21-7"></a><span class="co">#&gt; cycle4 0.4470939  0.16065718 0.39224891</span></span>
+<span id="cb21-8"><a href="#cb21-8"></a><span class="co">#&gt; cycle5 0.3667874  0.15736240 0.47585018</span></span>
+<span id="cb21-9"><a href="#cb21-9"></a><span class="co">#&gt; cycle6 0.3013025  0.14975502 0.54894249</span></span>
+<span id="cb21-10"><a href="#cb21-10"></a><span class="co">#&gt; cycle7 0.2478370  0.13993941 0.61222359</span></span>
+<span id="cb21-11"><a href="#cb21-11"></a><span class="co">#&gt; cycle8 0.2041300  0.12916888 0.66670111</span></span>
+<span id="cb21-12"><a href="#cb21-12"></a><span class="co">#&gt; cycle9 0.1683552  0.11819740 0.71344739</span></span>
+<span id="cb21-13"><a href="#cb21-13"></a><span class="kw">print</span>(output<span class="op">$</span>LCL)</span>
+<span id="cb21-14"><a href="#cb21-14"></a><span class="co">#&gt;             alive progressive       dead</span></span>
+<span id="cb21-15"><a href="#cb21-15"></a><span class="co">#&gt; cycle0 1.00000000  0.00000000 0.00000000</span></span>
+<span id="cb21-16"><a href="#cb21-16"></a><span class="co">#&gt; cycle1 0.77171390  0.06051485 0.06797091</span></span>
+<span id="cb21-17"><a href="#cb21-17"></a><span class="co">#&gt; cycle2 0.59556992  0.09443023 0.14239958</span></span>
+<span id="cb21-18"><a href="#cb21-18"></a><span class="co">#&gt; cycle3 0.45965235  0.11039509 0.21051200</span></span>
+<span id="cb21-19"><a href="#cb21-19"></a><span class="co">#&gt; cycle4 0.35476983  0.10616469 0.27541702</span></span>
+<span id="cb21-20"><a href="#cb21-20"></a><span class="co">#&gt; cycle5 0.27383221  0.08794084 0.33665804</span></span>
+<span id="cb21-21"><a href="#cb21-21"></a><span class="co">#&gt; cycle6 0.21136993  0.06992070 0.39399808</span></span>
+<span id="cb21-22"><a href="#cb21-22"></a><span class="co">#&gt; cycle7 0.16316345  0.05491740 0.44735781</span></span>
+<span id="cb21-23"><a href="#cb21-23"></a><span class="co">#&gt; cycle8 0.12595741  0.04283678 0.49676914</span></span>
+<span id="cb21-24"><a href="#cb21-24"></a><span class="co">#&gt; cycle9 0.09724021  0.03328078 0.54234069</span></span>
+<span id="cb21-25"><a href="#cb21-25"></a><span class="kw">print</span>(output<span class="op">$</span>UCL)</span>
+<span id="cb21-26"><a href="#cb21-26"></a><span class="co">#&gt;            alive progressive      dead</span></span>
+<span id="cb21-27"><a href="#cb21-27"></a><span class="co">#&gt; cycle0 1.0000000   0.0000000 0.0000000</span></span>
+<span id="cb21-28"><a href="#cb21-28"></a><span class="co">#&gt; cycle1 0.8670612   0.1174486 0.1216222</span></span>
+<span id="cb21-29"><a href="#cb21-29"></a><span class="co">#&gt; cycle2 0.7520577   0.1810281 0.2679836</span></span>
+<span id="cb21-30"><a href="#cb21-30"></a><span class="co">#&gt; cycle3 0.6525299   0.2214776 0.4130079</span></span>
+<span id="cb21-31"><a href="#cb21-31"></a><span class="co">#&gt; cycle4 0.5663613   0.2436330 0.5370779</span></span>
+<span id="cb21-32"><a href="#cb21-32"></a><span class="co">#&gt; cycle5 0.4917300   0.2605871 0.6382270</span></span>
+<span id="cb21-33"><a href="#cb21-33"></a><span class="co">#&gt; cycle6 0.4270671   0.2696529 0.7187094</span></span>
+<span id="cb21-34"><a href="#cb21-34"></a><span class="co">#&gt; cycle7 0.3710204   0.2731821 0.7819192</span></span>
+<span id="cb21-35"><a href="#cb21-35"></a><span class="co">#&gt; cycle8 0.3224244   0.2712979 0.8312058</span></span>
+<span id="cb21-36"><a href="#cb21-36"></a><span class="co">#&gt; cycle9 0.2802741   0.2653988 0.8694790</span></span>
+<span id="cb21-37"><a href="#cb21-37"></a></span>
+<span id="cb21-38"><a href="#cb21-38"></a><span class="kw">print</span>(output<span class="op">$</span>raw[,,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</span>
+<span id="cb21-39"><a href="#cb21-39"></a><span class="co">#&gt; , , 1</span></span>
+<span id="cb21-40"><a href="#cb21-40"></a><span class="co">#&gt; </span></span>
+<span id="cb21-41"><a href="#cb21-41"></a><span class="co">#&gt;            alive progressive       dead</span></span>
+<span id="cb21-42"><a href="#cb21-42"></a><span class="co">#&gt; cycle0 1.0000000  0.00000000 0.00000000</span></span>
+<span id="cb21-43"><a href="#cb21-43"></a><span class="co">#&gt; cycle1 0.8369843  0.07949851 0.08351716</span></span>
+<span id="cb21-44"><a href="#cb21-44"></a><span class="co">#&gt; cycle2 0.7005428  0.12492182 0.17453541</span></span>
+<span id="cb21-45"><a href="#cb21-45"></a><span class="co">#&gt; cycle3 0.5863433  0.14743330 0.26622338</span></span>
+<span id="cb21-46"><a href="#cb21-46"></a><span class="co">#&gt; cycle4 0.4907602  0.15488679 0.35435304</span></span>
+<span id="cb21-47"><a href="#cb21-47"></a><span class="co">#&gt; cycle5 0.4107586  0.15276183 0.43647960</span></span>
+<span id="cb21-48"><a href="#cb21-48"></a><span class="co">#&gt; cycle6 0.3437985  0.14484128 0.51136023</span></span>
+<span id="cb21-49"><a href="#cb21-49"></a><span class="co">#&gt; cycle7 0.2877539  0.13370129 0.57854477</span></span>
+<span id="cb21-50"><a href="#cb21-50"></a><span class="co">#&gt; cycle8 0.2408455  0.12106474 0.63808971</span></span>
+<span id="cb21-51"><a href="#cb21-51"></a><span class="co">#&gt; cycle9 0.2015839  0.10805546 0.69036059</span></span>
+<span id="cb21-52"><a href="#cb21-52"></a><span class="co">#&gt; </span></span>
+<span id="cb21-53"><a href="#cb21-53"></a><span class="co">#&gt; , , 2</span></span>
+<span id="cb21-54"><a href="#cb21-54"></a><span class="co">#&gt; </span></span>
+<span id="cb21-55"><a href="#cb21-55"></a><span class="co">#&gt;            alive progressive       dead</span></span>
+<span id="cb21-56"><a href="#cb21-56"></a><span class="co">#&gt; cycle0 1.0000000  0.00000000 0.00000000</span></span>
+<span id="cb21-57"><a href="#cb21-57"></a><span class="co">#&gt; cycle1 0.8345167  0.09287969 0.07260365</span></span>
+<span id="cb21-58"><a href="#cb21-58"></a><span class="co">#&gt; cycle2 0.6964180  0.16152170 0.14206026</span></span>
+<span id="cb21-59"><a href="#cb21-59"></a><span class="co">#&gt; cycle3 0.5811725  0.21078358 0.20804396</span></span>
+<span id="cb21-60"><a href="#cb21-60"></a><span class="co">#&gt; cycle4 0.4849981  0.24463823 0.27036368</span></span>
+<span id="cb21-61"><a href="#cb21-61"></a><span class="co">#&gt; cycle5 0.4047390  0.26632798 0.32893303</span></span>
+<span id="cb21-62"><a href="#cb21-62"></a><span class="co">#&gt; cycle6 0.3377614  0.27849247 0.38374611</span></span>
+<span id="cb21-63"><a href="#cb21-63"></a><span class="co">#&gt; cycle7 0.2818675  0.28327471 0.43485776</span></span>
+<span id="cb21-64"><a href="#cb21-64"></a><span class="co">#&gt; cycle8 0.2352231  0.28240895 0.48236790</span></span>
+<span id="cb21-65"><a href="#cb21-65"></a><span class="co">#&gt; cycle9 0.1962976  0.27729354 0.52640883</span></span></code></pre></div>
+<p>Now calculate the costs and outcomes using the sampled values of each (we’ll use the default transition period of 1 and discount rate of 3.5%):</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>costs &lt;-<span class="st"> </span><span class="kw">psavalues</span>(output, stateCosts)</span>
+<span id="cb22-2"><a href="#cb22-2"></a>QALYs &lt;-<span class="st"> </span><span class="kw">psavalues</span>(output, stateUtilities, <span class="dt">QALYs =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<p>And view some of the output:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw">print</span>(costs<span class="op">$</span>undisc<span class="op">$</span>mean)</span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="co">#&gt;             alive progressive dead     total</span></span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="co">#&gt; cycle0  417.62844     0.00000    0  417.6284</span></span>
+<span id="cb23-4"><a href="#cb23-4"></a><span class="co">#&gt; cycle1  342.12965    94.36093    0  436.4906</span></span>
+<span id="cb23-5"><a href="#cb23-5"></a><span class="co">#&gt; cycle2  280.63719   146.83578    0  427.4730</span></span>
+<span id="cb23-6"><a href="#cb23-6"></a><span class="co">#&gt; cycle3  230.49429   172.96103    0  403.4553</span></span>
+<span id="cb23-7"><a href="#cb23-7"></a><span class="co">#&gt; cycle4  189.55785   182.47773    0  372.0356</span></span>
+<span id="cb23-8"><a href="#cb23-8"></a><span class="co">#&gt; cycle5  156.09744   181.62499    0  337.7224</span></span>
+<span id="cb23-9"><a href="#cb23-9"></a><span class="co">#&gt; cycle6  128.71453   174.46470    0  303.1792</span></span>
+<span id="cb23-10"><a href="#cb23-10"></a><span class="co">#&gt; cycle7  106.27765   163.66819    0  269.9458</span></span>
+<span id="cb23-11"><a href="#cb23-11"></a><span class="co">#&gt; cycle8   87.87051   150.99741    0  238.8679</span></span>
+<span id="cb23-12"><a href="#cb23-12"></a><span class="co">#&gt; cycle9   72.75032   137.60827    0  210.3586</span></span>
+<span id="cb23-13"><a href="#cb23-13"></a><span class="co">#&gt; total  2012.15788  1404.99903    0 3417.1569</span></span>
+<span id="cb23-14"><a href="#cb23-14"></a></span>
+<span id="cb23-15"><a href="#cb23-15"></a><span class="kw">print</span>(costs<span class="op">$</span>disc<span class="op">$</span>total)</span>
+<span id="cb23-16"><a href="#cb23-16"></a><span class="co">#&gt;         total      LCL      UCL</span></span>
+<span id="cb23-17"><a href="#cb23-17"></a><span class="co">#&gt; [1,] 3005.421 995.3633 5177.584</span></span>
+<span id="cb23-18"><a href="#cb23-18"></a><span class="kw">print</span>(QALYs<span class="op">$</span>disc<span class="op">$</span>total)</span>
+<span id="cb23-19"><a href="#cb23-19"></a><span class="co">#&gt;         total      LCL      UCL</span></span>
+<span id="cb23-20"><a href="#cb23-20"></a><span class="co">#&gt; [1,] 3.977638 3.390371 4.593937</span></span></code></pre></div>
+<p>We can retrieve a vector of estimated costs and QALYs in a format suitable for use in <a href="https://github.com/Sheffield-Accelerated-VoI/SAVI">SAVI</a> to calculate value of information statistics:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">print</span>(costs<span class="op">$</span>disc<span class="op">$</span>SAVI)</span>
+<span id="cb24-2"><a href="#cb24-2"></a><span class="co">#&gt;  [1] 2556.8468 2492.5548 3003.2228 2310.3498 1662.5261 5052.4224 5213.9208</span></span>
+<span id="cb24-3"><a href="#cb24-3"></a><span class="co">#&gt;  [8] 3524.1473 3436.5437  801.6709</span></span>
+<span id="cb24-4"><a href="#cb24-4"></a><span class="kw">print</span>(QALYs<span class="op">$</span>disc<span class="op">$</span>SAVI)</span>
+<span id="cb24-5"><a href="#cb24-5"></a><span class="co">#&gt;  [1] 4.122502 4.510002 3.574404 3.381662 3.735371 4.618306 4.213361 4.171267</span></span>
+<span id="cb24-6"><a href="#cb24-6"></a><span class="co">#&gt;  [9] 4.029140 3.420371</span></span></code></pre></div>
+<p>And assemble all the input parameters too (whilst making the column headers a little clearer - ‘C’ stands for cost and ‘U’ for utility):</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>paramsSAVI &lt;-<span class="st"> </span><span class="kw">cbind</span>(probs,stateCosts,stateUtilities)</span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="kw">colnames</span>(paramsSAVI) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">colnames</span>(paramsSAVI)[<span class="dv">1</span><span class="op">:</span><span class="dv">9</span>],</span>
+<span id="cb25-3"><a href="#cb25-3"></a>                          <span class="st">&quot;C_S1&quot;</span>, <span class="st">&quot;C_S2&quot;</span>, <span class="st">&quot;C_S3&quot;</span>, </span>
+<span id="cb25-4"><a href="#cb25-4"></a>                          <span class="st">&quot;U_S1&quot;</span>, <span class="st">&quot;U_S2&quot;</span>, <span class="st">&quot;U_S3&quot;</span>)</span>
+<span id="cb25-5"><a href="#cb25-5"></a><span class="kw">head</span>(paramsSAVI)</span>
+<span id="cb25-6"><a href="#cb25-6"></a><span class="co">#&gt;          S1&gt;S1      S1&gt;S2      S1&gt;S3 S2&gt;S1     S2&gt;S2      S2&gt;S3 S3&gt;S1 S3&gt;S2</span></span>
+<span id="cb25-7"><a href="#cb25-7"></a><span class="co">#&gt; [1,] 0.8369843 0.07949851 0.08351716     0 0.7343889 0.26561115     0     0</span></span>
+<span id="cb25-8"><a href="#cb25-8"></a><span class="co">#&gt; [2,] 0.8345167 0.09287969 0.07260365     0 0.9045255 0.09547455     0     0</span></span>
+<span id="cb25-9"><a href="#cb25-9"></a><span class="co">#&gt; [3,] 0.7975582 0.10771827 0.09472355     0 0.5306579 0.46934209     0     0</span></span>
+<span id="cb25-10"><a href="#cb25-10"></a><span class="co">#&gt; [4,] 0.7814615 0.09451904 0.12401947     0 0.5201221 0.47987790     0     0</span></span>
+<span id="cb25-11"><a href="#cb25-11"></a><span class="co">#&gt; [5,] 0.8161431 0.08305964 0.10079731     0 0.5286101 0.47138988     0     0</span></span>
+<span id="cb25-12"><a href="#cb25-12"></a><span class="co">#&gt; [6,] 0.8757932 0.05500347 0.06920336     0 0.7498853 0.25011465     0     0</span></span>
+<span id="cb25-13"><a href="#cb25-13"></a><span class="co">#&gt;      S3&gt;S3     C_S1       C_S2 C_S3      U_S1      U_S2 U_S3</span></span>
+<span id="cb25-14"><a href="#cb25-14"></a><span class="co">#&gt; [1,]     1 321.1558 1096.38572    0 0.7951720 0.4708515    0</span></span>
+<span id="cb25-15"><a href="#cb25-15"></a><span class="co">#&gt; [2,]     1 530.2940   41.96951    0 0.8017186 0.4908748    0</span></span>
+<span id="cb25-16"><a href="#cb25-16"></a><span class="co">#&gt; [3,]     1 634.9421  548.35642    0 0.7843886 0.5082687    0</span></span>
+<span id="cb25-17"><a href="#cb25-17"></a><span class="co">#&gt; [4,]     1 407.3139 1130.77237    0 0.7993420 0.4764391    0</span></span>
+<span id="cb25-18"><a href="#cb25-18"></a><span class="co">#&gt; [5,]     1 356.5023  205.25705    0 0.8051508 0.4336951    0</span></span>
+<span id="cb25-19"><a href="#cb25-19"></a><span class="co">#&gt; [6,]     1 548.9292 2753.19832    0 0.8044180 0.4764137    0</span></span></code></pre></div>
+<p>It’s worth noting that the probability of moving from state 1 to states 1, 2 or 3 (“S1&gt;S1”, “S1&gt;S2”, and “S1&gt;S3”) are generated from the multinomial Dirichlet distribution, and hence are correlated. The EVPPI for the three parameters individually is therefore unhelpful, and these should be grouped together in SAVI to calculate the EVPPI of “moving from state 1 to any other state”. The same is true for the probabilities of moving from state 2 (and indeed state 3, although this is the absorbing state and there is zero uncertainty).</p>
+</div>
+<div id="example-4b-probabilistic-modelling-non-stationary-model" class="section level3">
+<h3>Example 4b: Probabilistic modelling, non-stationary model</h3>
+<p>The idea here is to use your favourite data-generating process to sample the time-varying transition probabilities. These are compiled into a wide matrix called probs, where each row represents one complete set of simulated values.</p>
+<p>The order of the columns of probs is cycle number, state 1 to every other state, state 2 to every other state and so on. For example for a 2-state model with 3 cycles, the complete order of columns would be: C1_S1&gt;S1, C1_S1&gt;S2, C1_S2&gt;S1, C1_S2&gt;S2 C2_S1&gt;S1, C2_S1&gt;S2, C2_S2&gt;S1, C2_S2&gt;S2. Where C = cycle, S = state, so C1_S1&gt;S1 is the probability of transitioning from state 1 to state 1 in cycle 1.</p>
+<p>Note cycles are numbered from 0, where the Markov chain is in its starting state, so you only need to specify cycles-1 sets of transitions.</p>
+<p>Suppose we’re modelling the natural history of “Disease X” with the following assumptions:</p>
+<ol style="list-style-type: decimal">
+<li>There are three health states, ‘alive’, ‘progressive’ and ‘dead’.</li>
+<li>The typical patient is a 60 year old female.</li>
+<li>The model will run for 10 cycles.</li>
+<li>Patients in the ‘alive’ state are at no increased risk of death compared with the general population.</li>
+<li>The probability of a patient developing progressive disease increases with age, following a Weibull survival function.</li>
+<li>Patients in the ‘progressive’ state have approximately 30% mortality risk per annum (this is time-invariant to keep the example simple).</li>
+</ol>
+<p>Set up a few model parameters reflecting (1)-(3) first:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;alive&quot;</span>, <span class="st">&quot;progressive&quot;</span>, <span class="st">&quot;dead&quot;</span>)</span>
+<span id="cb26-2"><a href="#cb26-2"></a>startingStates &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb26-3"><a href="#cb26-3"></a>startAge &lt;-<span class="st"> </span><span class="dv">60</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a>cycles &lt;-<span class="st"> </span><span class="dv">10</span></span></code></pre></div>
+<p>Data source for (4) is lifetable data from <a href="https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/lifeexpectancies/datasets/nationallifetablesunitedkingdomreferencetables">ONS</a>, 2016-18, females age 60-68.<br />
+Given these are population level data, the standard error is small enough to enter these probabilities as constants in the model.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>lifeTable &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.003548</span>, <span class="fl">0.000224</span>, <span class="fl">0.000127</span>, <span class="fl">0.000098</span>, <span class="fl">0.000073</span>, </span>
+<span id="cb27-2"><a href="#cb27-2"></a>               <span class="fl">0.000081</span>, <span class="fl">0.000075</span>, <span class="fl">0.000060</span>, <span class="fl">0.000060</span>, <span class="fl">0.000062</span>, </span>
+<span id="cb27-3"><a href="#cb27-3"></a>               <span class="fl">0.000059</span>, <span class="fl">0.000076</span>, <span class="fl">0.000069</span>, <span class="fl">0.000078</span>, <span class="fl">0.000101</span>, </span>
+<span id="cb27-4"><a href="#cb27-4"></a>               <span class="fl">0.000119</span>, <span class="fl">0.000153</span>, <span class="fl">0.000152</span>, <span class="fl">0.000218</span>, <span class="fl">0.000196</span>, </span>
+<span id="cb27-5"><a href="#cb27-5"></a>               <span class="fl">0.000197</span>, <span class="fl">0.000224</span>, <span class="fl">0.000219</span>, <span class="fl">0.000220</span>, <span class="fl">0.000226</span>, </span>
+<span id="cb27-6"><a href="#cb27-6"></a>               <span class="fl">0.000260</span>, <span class="fl">0.000252</span>, <span class="fl">0.000286</span>, <span class="fl">0.000330</span>, <span class="fl">0.000314</span>, </span>
+<span id="cb27-7"><a href="#cb27-7"></a>               <span class="fl">0.000374</span>, <span class="fl">0.000394</span>, <span class="fl">0.000482</span>, <span class="fl">0.000500</span>, <span class="fl">0.000545</span>, </span>
+<span id="cb27-8"><a href="#cb27-8"></a>               <span class="fl">0.000586</span>, <span class="fl">0.000654</span>, <span class="fl">0.000738</span>, <span class="fl">0.000720</span>, <span class="fl">0.000846</span>, </span>
+<span id="cb27-9"><a href="#cb27-9"></a>               <span class="fl">0.000882</span>, <span class="fl">0.000993</span>, <span class="fl">0.001051</span>, <span class="fl">0.001183</span>, <span class="fl">0.001328</span>, </span>
+<span id="cb27-10"><a href="#cb27-10"></a>               <span class="fl">0.001436</span>, <span class="fl">0.001540</span>, <span class="fl">0.001700</span>, <span class="fl">0.001823</span>, <span class="fl">0.001935</span>, </span>
+<span id="cb27-11"><a href="#cb27-11"></a>               <span class="fl">0.002136</span>, <span class="fl">0.002363</span>, <span class="fl">0.002581</span>, <span class="fl">0.002756</span>, <span class="fl">0.002952</span>, </span>
+<span id="cb27-12"><a href="#cb27-12"></a>               <span class="fl">0.003265</span>, <span class="fl">0.003621</span>, <span class="fl">0.003896</span>, <span class="fl">0.004324</span>, <span class="fl">0.004730</span>, </span>
+<span id="cb27-13"><a href="#cb27-13"></a>               <span class="fl">0.005104</span>, <span class="fl">0.005600</span>, <span class="fl">0.006303</span>, <span class="fl">0.006832</span>, <span class="fl">0.007346</span>, </span>
+<span id="cb27-14"><a href="#cb27-14"></a>               <span class="fl">0.007995</span>, <span class="fl">0.008860</span>, <span class="fl">0.009523</span>, <span class="fl">0.010379</span>, <span class="fl">0.011361</span>, </span>
+<span id="cb27-15"><a href="#cb27-15"></a>               <span class="fl">0.012601</span>, <span class="fl">0.013781</span>, <span class="fl">0.015916</span>, <span class="fl">0.017545</span>, <span class="fl">0.019298</span>, </span>
+<span id="cb27-16"><a href="#cb27-16"></a>               <span class="fl">0.022011</span>, <span class="fl">0.025052</span>, <span class="fl">0.027787</span>, <span class="fl">0.031365</span>, <span class="fl">0.034408</span>, </span>
+<span id="cb27-17"><a href="#cb27-17"></a>               <span class="fl">0.038922</span>, <span class="fl">0.043938</span>, <span class="fl">0.049786</span>, <span class="fl">0.057500</span>, <span class="fl">0.065049</span>, </span>
+<span id="cb27-18"><a href="#cb27-18"></a>               <span class="fl">0.073792</span>, <span class="fl">0.084250</span>, <span class="fl">0.095303</span>, <span class="fl">0.108358</span>, <span class="fl">0.121616</span>, </span>
+<span id="cb27-19"><a href="#cb27-19"></a>               <span class="fl">0.136979</span>, <span class="fl">0.153256</span>, <span class="fl">0.169425</span>, <span class="fl">0.187195</span>, <span class="fl">0.206281</span>, </span>
+<span id="cb27-20"><a href="#cb27-20"></a>               <span class="fl">0.230368</span>, <span class="fl">0.249110</span>, <span class="fl">0.270828</span>, <span class="fl">0.290344</span>, <span class="fl">0.316440</span>, <span class="fl">0.339686</span>)</span></code></pre></div>
+<p>For (5) assume we have some long term observational data on a cohort of patients with Disease X. The Weibull function was shown to be the best fitting model and has two parameters, shape and scale. The mean (standard error of log of mean) of each are 2 (ln1.05) and 0.001 (ln1.1) respectively. The parameters are estimated from fitting the curve to the Kaplan-Meier plot of a cohort observed over time moving from ‘alive’ to ‘progressive’ disease. The parameters are distributed log-normal. We sample from these <em>sims</em> times:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>sims &lt;-<span class="st"> </span><span class="dv">10</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="kw">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb28-3"><a href="#cb28-3"></a>WeibullSamples&lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">shapes =</span> <span class="kw">rlnorm</span>(sims, <span class="kw">log</span>(<span class="dv">2</span>), <span class="kw">log</span>(<span class="fl">1.05</span>)),</span>
+<span id="cb28-4"><a href="#cb28-4"></a>                      <span class="dt">scales =</span> <span class="kw">rlnorm</span>(sims, <span class="kw">log</span>(<span class="fl">0.001</span>), <span class="kw">log</span>(<span class="fl">1.1</span>)))</span></code></pre></div>
+<p>We then calculate <em>sims</em> Weibull functions with each sampled shape and scale parameter, and convert the hazard to transition probabilities for ages 60-69. (The transition probability between t(x-1) and t(x) is 1-exp(scale*((t(x-1)^shape - t(x)^shape))).</p>
+<p>We store this in the matrix ‘p_AtoP’ (“probability of moving from alive to progressive”).</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>p_AtoP &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">apply</span>(WeibullSamples, <span class="dv">1</span>,</span>
+<span id="cb29-2"><a href="#cb29-2"></a>                  <span class="cf">function</span>(y) <span class="kw">sapply</span>((startAge <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)<span class="op">:</span>(startAge <span class="op">+</span><span class="st"> </span>cycles <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),</span>
+<span id="cb29-3"><a href="#cb29-3"></a>                                     <span class="cf">function</span>(x) {</span>
+<span id="cb29-4"><a href="#cb29-4"></a>                                       <span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">exp</span>(y[<span class="dv">2</span>] <span class="op">*</span><span class="st"> </span>((x <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)<span class="op">^</span>y[<span class="dv">1</span>] <span class="op">-</span><span class="st"> </span>x<span class="op">^</span>y[<span class="dv">1</span>]))</span>
+<span id="cb29-5"><a href="#cb29-5"></a>                                     }</span>
+<span id="cb29-6"><a href="#cb29-6"></a>                                    )</span>
+<span id="cb29-7"><a href="#cb29-7"></a>                  )</span>
+<span id="cb29-8"><a href="#cb29-8"></a>            )</span>
+<span id="cb29-9"><a href="#cb29-9"></a><span class="kw">colnames</span>(p_AtoP) &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;p_AtoP_Age&quot;</span>, startAge<span class="op">:</span>(startAge <span class="op">+</span><span class="st"> </span>cycles <span class="op">-</span><span class="st"> </span><span class="dv">2</span>))</span></code></pre></div>
+<p>Next extract relevant lifetable data, and expand out replicating for each <em>sim</em>. Save this in thematrix ‘p_AtoD’ (“probability of moving from alive to dead”).</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>lifetableExtract &lt;-<span class="st"> </span>lifeTable[(startAge<span class="op">+</span><span class="dv">1</span>)<span class="op">:</span>(startAge <span class="op">+</span><span class="st"> </span>cycles <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)]</span>
+<span id="cb30-2"><a href="#cb30-2"></a>p_AtoD &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rep</span>(lifetableExtract, sims), <span class="dt">nrow =</span> sims, <span class="dt">byrow =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb30-3"><a href="#cb30-3"></a><span class="kw">colnames</span>(p_AtoD) &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;p_AtoD_Age&quot;</span>, startAge<span class="op">:</span>(startAge <span class="op">+</span><span class="st"> </span>cycles <span class="op">-</span><span class="st"> </span><span class="dv">2</span>))</span></code></pre></div>
+<p>Each cycle, the probability of remaining in the ‘alive’ state is 1-sum( probability of moving to ‘progressive’, probability of moving to ‘dead’):</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>StayingAlive &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_AtoP <span class="op">-</span><span class="st"> </span>p_AtoD</span>
+<span id="cb31-2"><a href="#cb31-2"></a><span class="kw">colnames</span>(StayingAlive) &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;p_AtoA_Age&quot;</span>, startAge<span class="op">:</span>(startAge <span class="op">+</span><span class="st"> </span>cycles <span class="op">-</span><span class="st"> </span><span class="dv">2</span>))</span></code></pre></div>
+<p>We now have the transitions from the ‘alive’ state to ‘alive’, ‘progressive’ and ‘dead’ by transition period and sim. Note as these are estimated separately, where the probabilities of death or progression are ‘high’, the probability of remaining ‘alive’ may be negative. Fortunately this doesn’t occur in this example, but should this happen, the probabilities will need to be adjusted or (ideally) jointly estimated.</p>
+<p>Now set up the ‘probs’ matrix and populate with the transitions calculated so far:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>nStates &lt;-<span class="st"> </span><span class="kw">length</span>(states)</span>
+<span id="cb32-2"><a href="#cb32-2"></a>probs &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">data =</span> <span class="ot">NA</span>, <span class="dt">nrow =</span> sims, <span class="dt">ncol =</span> nStates<span class="op">^</span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(cycles <span class="op">-</span><span class="st"> </span><span class="dv">1</span>))</span>
+<span id="cb32-3"><a href="#cb32-3"></a><span class="kw">colnames</span>(probs) &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span>(cycles <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),</span>
+<span id="cb32-4"><a href="#cb32-4"></a>                                 <span class="cf">function</span>(i) <span class="kw">c</span>(<span class="kw">paste0</span>(<span class="st">&quot;A&gt;&gt;A&quot;</span>, i),</span>
+<span id="cb32-5"><a href="#cb32-5"></a>                                               <span class="kw">paste0</span>(<span class="st">&quot;A&gt;&gt;P&quot;</span>, i),</span>
+<span id="cb32-6"><a href="#cb32-6"></a>                                               <span class="kw">paste0</span>(<span class="st">&quot;A&gt;&gt;D&quot;</span>, i),</span>
+<span id="cb32-7"><a href="#cb32-7"></a>                                               <span class="kw">paste0</span>(<span class="st">&quot;P&gt;&gt;A&quot;</span>, i),</span>
+<span id="cb32-8"><a href="#cb32-8"></a>                                               <span class="kw">paste0</span>(<span class="st">&quot;P&gt;&gt;P&quot;</span>, i),</span>
+<span id="cb32-9"><a href="#cb32-9"></a>                                               <span class="kw">paste0</span>(<span class="st">&quot;P&gt;&gt;D&quot;</span>, i),</span>
+<span id="cb32-10"><a href="#cb32-10"></a>                                               <span class="kw">paste0</span>(<span class="st">&quot;D&gt;&gt;A&quot;</span>, i),</span>
+<span id="cb32-11"><a href="#cb32-11"></a>                                               <span class="kw">paste0</span>(<span class="st">&quot;D&gt;&gt;P&quot;</span>, i),</span>
+<span id="cb32-12"><a href="#cb32-12"></a>                                               <span class="kw">paste0</span>(<span class="st">&quot;D&gt;&gt;D&quot;</span>, i))</span>
+<span id="cb32-13"><a href="#cb32-13"></a>                                 )</span>
+<span id="cb32-14"><a href="#cb32-14"></a>                          )</span>
+<span id="cb32-15"><a href="#cb32-15"></a>probs[, <span class="kw">seq</span>(<span class="dv">1</span>, (cycles<span class="dv">-1</span>) <span class="op">*</span><span class="st"> </span>nStates<span class="op">^</span><span class="dv">2</span>, nStates<span class="op">^</span><span class="dv">2</span>)] &lt;-<span class="st"> </span>StayingAlive</span>
+<span id="cb32-16"><a href="#cb32-16"></a>probs[, <span class="kw">seq</span>(<span class="dv">2</span>, (cycles<span class="dv">-1</span>) <span class="op">*</span><span class="st"> </span>nStates<span class="op">^</span><span class="dv">2</span>, nStates<span class="op">^</span><span class="dv">2</span>)] &lt;-<span class="st"> </span>p_AtoP</span>
+<span id="cb32-17"><a href="#cb32-17"></a>probs[, <span class="kw">seq</span>(<span class="dv">3</span>, (cycles<span class="dv">-1</span>) <span class="op">*</span><span class="st"> </span>nStates<span class="op">^</span><span class="dv">2</span>, nStates<span class="op">^</span><span class="dv">2</span>)] &lt;-<span class="st"> </span>p_AtoD</span></code></pre></div>
+<p>The transitions from progressive disease follow a simple Dirichlet(0,7,3), implying a mean 30% probability of death as per assumption (6), and we have no resurrection of the dead:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw">library</span>(gtools)</span>
+<span id="cb33-2"><a href="#cb33-2"></a></span>
+<span id="cb33-3"><a href="#cb33-3"></a>FromProgressive &lt;-<span class="st"> </span><span class="kw">rdirichlet</span>(sims, <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">7</span>, <span class="dv">3</span>))</span>
+<span id="cb33-4"><a href="#cb33-4"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>) {</span>
+<span id="cb33-5"><a href="#cb33-5"></a>  probs[, <span class="kw">seq</span>(i <span class="op">+</span><span class="st"> </span><span class="dv">3</span>, (cycles <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">*</span><span class="st"> </span>nStates<span class="op">^</span><span class="dv">2</span>, nStates<span class="op">^</span><span class="dv">2</span>)] &lt;-<span class="st"> </span>FromProgressive[, i]</span>
+<span id="cb33-6"><a href="#cb33-6"></a>}</span>
+<span id="cb33-7"><a href="#cb33-7"></a></span>
+<span id="cb33-8"><a href="#cb33-8"></a>FromDead &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">data =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>), sims), <span class="dt">nrow =</span> sims, <span class="dt">byrow =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb33-9"><a href="#cb33-9"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>) {</span>
+<span id="cb33-10"><a href="#cb33-10"></a>  probs[, <span class="kw">seq</span>(i <span class="op">+</span><span class="st"> </span><span class="dv">6</span>, (cycles <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">*</span><span class="st"> </span>nStates<span class="op">^</span><span class="dv">2</span>, nStates<span class="op">^</span><span class="dv">2</span>)] &lt;-<span class="st"> </span>FromDead[, i]</span>
+<span id="cb33-11"><a href="#cb33-11"></a>}</span></code></pre></div>
+<p>Now probs is set up, the model is calculated exactly the same as before: reformatting probs and calculating the Markov traces, followed by eyeballing some of the output:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>transitionsMatrix &lt;-<span class="st"> </span><span class="kw">converttomatrices</span>(states, probs)</span>
+<span id="cb34-2"><a href="#cb34-2"></a>output &lt;-<span class="st"> </span><span class="kw">psamarkov</span>(transitionsMatrix, startingStates, <span class="dt">stateNames =</span> states)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">print</span>(output<span class="op">$</span>means)</span>
+<span id="cb35-2"><a href="#cb35-2"></a><span class="co">#&gt;            alive progressive       dead</span></span>
+<span id="cb35-3"><a href="#cb35-3"></a><span class="co">#&gt; cycle0 1.0000000   0.0000000 0.00000000</span></span>
+<span id="cb35-4"><a href="#cb35-4"></a><span class="co">#&gt; cycle1 0.8755697   0.1193263 0.00510400</span></span>
+<span id="cb35-5"><a href="#cb35-5"></a><span class="co">#&gt; cycle2 0.7654949   0.1944469 0.04005822</span></span>
+<span id="cb35-6"><a href="#cb35-6"></a><span class="co">#&gt; cycle3 0.6681476   0.2401758 0.09167655</span></span>
+<span id="cb35-7"><a href="#cb35-7"></a><span class="co">#&gt; cycle4 0.5823547   0.2659736 0.15167177</span></span>
+<span id="cb35-8"><a href="#cb35-8"></a><span class="co">#&gt; cycle5 0.5068905   0.2781115 0.21499804</span></span>
+<span id="cb35-9"><a href="#cb35-9"></a><span class="co">#&gt; cycle6 0.4405577   0.2808538 0.27858850</span></span>
+<span id="cb35-10"><a href="#cb35-10"></a><span class="co">#&gt; cycle7 0.3822630   0.2771588 0.34057816</span></span>
+<span id="cb35-11"><a href="#cb35-11"></a><span class="co">#&gt; cycle8 0.3312148   0.2691123 0.39967291</span></span>
+<span id="cb35-12"><a href="#cb35-12"></a><span class="co">#&gt; cycle9 0.2865253   0.2582258 0.45524895</span></span>
+<span id="cb35-13"><a href="#cb35-13"></a><span class="kw">print</span>(output<span class="op">$</span>LCL)</span>
+<span id="cb35-14"><a href="#cb35-14"></a><span class="co">#&gt;            alive progressive       dead</span></span>
+<span id="cb35-15"><a href="#cb35-15"></a><span class="co">#&gt; cycle0 1.0000000   0.0000000 0.00000000</span></span>
+<span id="cb35-16"><a href="#cb35-16"></a><span class="co">#&gt; cycle1 0.8213606   0.0768619 0.00510400</span></span>
+<span id="cb35-17"><a href="#cb35-17"></a><span class="co">#&gt; cycle2 0.6719525   0.1381348 0.01588181</span></span>
+<span id="cb35-18"><a href="#cb35-18"></a><span class="co">#&gt; cycle3 0.5473962   0.1600239 0.03140468</span></span>
+<span id="cb35-19"><a href="#cb35-19"></a><span class="co">#&gt; cycle4 0.4441340   0.1609910 0.05057699</span></span>
+<span id="cb35-20"><a href="#cb35-20"></a><span class="co">#&gt; cycle5 0.3589064   0.1543581 0.07259254</span></span>
+<span id="cb35-21"><a href="#cb35-21"></a><span class="co">#&gt; cycle6 0.2888212   0.1426351 0.09686042</span></span>
+<span id="cb35-22"><a href="#cb35-22"></a><span class="co">#&gt; cycle7 0.2313866   0.1280957 0.12291434</span></span>
+<span id="cb35-23"><a href="#cb35-23"></a><span class="co">#&gt; cycle8 0.1845931   0.1139903 0.15014630</span></span>
+<span id="cb35-24"><a href="#cb35-24"></a><span class="co">#&gt; cycle9 0.1466065   0.1007997 0.17823141</span></span>
+<span id="cb35-25"><a href="#cb35-25"></a><span class="kw">print</span>(output<span class="op">$</span>UCL)</span>
+<span id="cb35-26"><a href="#cb35-26"></a><span class="co">#&gt;            alive progressive      dead</span></span>
+<span id="cb35-27"><a href="#cb35-27"></a><span class="co">#&gt; cycle0 1.0000000   0.0000000 0.0000000</span></span>
+<span id="cb35-28"><a href="#cb35-28"></a><span class="co">#&gt; cycle1 0.9180341   0.1735354 0.0051040</span></span>
+<span id="cb35-29"><a href="#cb35-29"></a><span class="co">#&gt; cycle2 0.8413198   0.2822872 0.0678329</span></span>
+<span id="cb35-30"><a href="#cb35-30"></a><span class="co">#&gt; cycle3 0.7695010   0.3629773 0.1543879</span></span>
+<span id="cb35-31"><a href="#cb35-31"></a><span class="co">#&gt; cycle4 0.7025641   0.4154382 0.2475331</span></span>
+<span id="cb35-32"><a href="#cb35-32"></a><span class="co">#&gt; cycle5 0.6403230   0.4464337 0.3387791</span></span>
+<span id="cb35-33"><a href="#cb35-33"></a><span class="co">#&gt; cycle6 0.5824848   0.4680010 0.4241565</span></span>
+<span id="cb35-34"><a href="#cb35-34"></a><span class="co">#&gt; cycle7 0.5287366   0.4819877 0.5020155</span></span>
+<span id="cb35-35"><a href="#cb35-35"></a><span class="co">#&gt; cycle8 0.4790272   0.4886108 0.5717399</span></span>
+<span id="cb35-36"><a href="#cb35-36"></a><span class="co">#&gt; cycle9 0.4330664   0.4877811 0.6367004</span></span></code></pre></div>
+<p>Finally costs and health state utilities are sampled and applied to the Markov trace:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>stateCosts &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">rgamma</span>(sims, <span class="dv">10</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">50</span>), <span class="kw">rgamma</span>(sims, <span class="dv">1</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">1000</span>), <span class="kw">rep</span>(<span class="dv">0</span>, sims))</span>
+<span id="cb36-2"><a href="#cb36-2"></a>stateUtilities &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">rbeta</span>(sims, <span class="dv">800</span>, <span class="dv">200</span>), <span class="kw">rbeta</span>(sims, <span class="dv">50</span>, <span class="dv">50</span>), <span class="kw">rep</span>(<span class="dv">0</span>, sims))</span>
+<span id="cb36-3"><a href="#cb36-3"></a></span>
+<span id="cb36-4"><a href="#cb36-4"></a>costs &lt;-<span class="st"> </span><span class="kw">psavalues</span>(output, stateCosts)</span>
+<span id="cb36-5"><a href="#cb36-5"></a>QALYs &lt;-<span class="st"> </span><span class="kw">psavalues</span>(output, stateUtilities, <span class="dt">QALYs =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="kw">print</span>(costs<span class="op">$</span>undisc<span class="op">$</span>mean)</span>
+<span id="cb37-2"><a href="#cb37-2"></a><span class="co">#&gt;            alive progressive dead     total</span></span>
+<span id="cb37-3"><a href="#cb37-3"></a><span class="co">#&gt; cycle0  472.1999     0.00000    0  472.1999</span></span>
+<span id="cb37-4"><a href="#cb37-4"></a><span class="co">#&gt; cycle1  410.8713    83.53625    0  494.4075</span></span>
+<span id="cb37-5"><a href="#cb37-5"></a><span class="co">#&gt; cycle2  356.8873   136.05050    0  492.9378</span></span>
+<span id="cb37-6"><a href="#cb37-6"></a><span class="co">#&gt; cycle3  309.4006   166.84751    0  476.2481</span></span>
+<span id="cb37-7"><a href="#cb37-7"></a><span class="co">#&gt; cycle4  267.7848   182.59887    0  450.3837</span></span>
+<span id="cb37-8"><a href="#cb37-8"></a><span class="co">#&gt; cycle5  231.3960   188.10327    0  419.4992</span></span>
+<span id="cb37-9"><a href="#cb37-9"></a><span class="co">#&gt; cycle6  199.6113   186.79076    0  386.4020</span></span>
+<span id="cb37-10"><a href="#cb37-10"></a><span class="co">#&gt; cycle7  171.8649   181.09343    0  352.9583</span></span>
+<span id="cb37-11"><a href="#cb37-11"></a><span class="co">#&gt; cycle8  147.7357   172.72032    0  320.4560</span></span>
+<span id="cb37-12"><a href="#cb37-12"></a><span class="co">#&gt; cycle9  126.7663   162.87224    0  289.6385</span></span>
+<span id="cb37-13"><a href="#cb37-13"></a><span class="co">#&gt; total  2694.5180  1460.61313    0 4155.1311</span></span>
+<span id="cb37-14"><a href="#cb37-14"></a></span>
+<span id="cb37-15"><a href="#cb37-15"></a><span class="kw">print</span>(costs<span class="op">$</span>disc<span class="op">$</span>total)</span>
+<span id="cb37-16"><a href="#cb37-16"></a><span class="co">#&gt;         total      LCL     UCL</span></span>
+<span id="cb37-17"><a href="#cb37-17"></a><span class="co">#&gt; [1,] 3632.925 1692.417 6816.43</span></span>
+<span id="cb37-18"><a href="#cb37-18"></a><span class="kw">print</span>(QALYs<span class="op">$</span>disc<span class="op">$</span>total)</span>
+<span id="cb37-19"><a href="#cb37-19"></a><span class="co">#&gt;         total      LCL     UCL</span></span>
+<span id="cb37-20"><a href="#cb37-20"></a><span class="co">#&gt; [1,] 5.086073 4.583209 5.73134</span></span></code></pre></div>
+<p>As before, a vector of costs and QALYs can be extracted in <a href="https://github.com/Sheffield-Accelerated-VoI/SAVI">SAVI</a> format:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="kw">print</span>(costs<span class="op">$</span>disc<span class="op">$</span>SAVI)</span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="co">#&gt;  [1] 2488.640 2900.109 1569.038 7072.288 2595.459 5935.142 2117.392 4158.625</span></span>
+<span id="cb38-3"><a href="#cb38-3"></a><span class="co">#&gt;  [9] 3825.182 3667.376</span></span>
+<span id="cb38-4"><a href="#cb38-4"></a><span class="kw">print</span>(QALYs<span class="op">$</span>disc<span class="op">$</span>SAVI)</span>
+<span id="cb38-5"><a href="#cb38-5"></a><span class="co">#&gt;  [1] 5.223253 4.986447 5.122332 4.539691 5.254465 4.800389 5.509017 4.896146</span></span>
+<span id="cb38-6"><a href="#cb38-6"></a><span class="co">#&gt;  [9] 5.795886 4.733106</span></span></code></pre></div>
+<p>Assembling the input parameters in SAVI format is a little different from Example 4a. For the Weibull survival function, Whilst we could simply add a column for everytransition at every time period, this is less useful and very inefficient. What we really want are the sampled shape and scale parameters.<br />
+There is no uncertainty in the life table data hence there is no point in including them. The sampled Dirichlet probabilities for transitions from the progressive state do need including as in Example 4a, and the same caveat is added: the EVPPI of the group of three should be examined, rather than for each probability individually.</p>
+<p>Finally we add the sampled costs and health state utilities too:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>paramsSAVI &lt;-<span class="st"> </span><span class="kw">cbind</span>(WeibullSamples, FromProgressive</span>
+<span id="cb39-2"><a href="#cb39-2"></a>                    ,stateCosts,stateUtilities)</span>
+<span id="cb39-3"><a href="#cb39-3"></a><span class="kw">colnames</span>(paramsSAVI) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">colnames</span>(paramsSAVI)[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>],</span>
+<span id="cb39-4"><a href="#cb39-4"></a>                          <span class="st">&quot;P_PtoA&quot;</span>, <span class="st">&quot;P_PtoP&quot;</span>, <span class="st">&quot;P_PtoD&quot;</span>,</span>
+<span id="cb39-5"><a href="#cb39-5"></a>                          <span class="st">&quot;C_S1&quot;</span>, <span class="st">&quot;C_S2&quot;</span>, <span class="st">&quot;C_S3&quot;</span>, </span>
+<span id="cb39-6"><a href="#cb39-6"></a>                          <span class="st">&quot;U_S1&quot;</span>, <span class="st">&quot;U_S2&quot;</span>, <span class="st">&quot;U_S3&quot;</span>)</span>
+<span id="cb39-7"><a href="#cb39-7"></a><span class="kw">head</span>(paramsSAVI)</span>
+<span id="cb39-8"><a href="#cb39-8"></a><span class="co">#&gt;     shapes       scales P_PtoA    P_PtoP    P_PtoD     C_S1        C_S2 C_S3</span></span>
+<span id="cb39-9"><a href="#cb39-9"></a><span class="co">#&gt; 1 1.951591 0.0010086039      0 0.5630646 0.4369354 420.6412   82.760268    0</span></span>
+<span id="cb39-10"><a href="#cb39-10"></a><span class="co">#&gt; 2 2.012876 0.0010092182      0 0.8238155 0.1761845 432.7143  326.001426    0</span></span>
+<span id="cb39-11"><a href="#cb39-11"></a><span class="co">#&gt; 3 1.992314 0.0009809657      0 0.6110040 0.3889960 229.5965  267.977055    0</span></span>
+<span id="cb39-12"><a href="#cb39-12"></a><span class="co">#&gt; 4 2.088432 0.0010730599      0 0.7359592 0.2640408 432.7294 2460.574418    0</span></span>
+<span id="cb39-13"><a href="#cb39-13"></a><span class="co">#&gt; 5 2.011447 0.0010118287      0 0.8371226 0.1628774 502.9648    5.163665    0</span></span>
+<span id="cb39-14"><a href="#cb39-14"></a><span class="co">#&gt; 6 2.031335 0.0009972097      0 0.7400780 0.2599220 812.4238 1052.889219    0</span></span>
+<span id="cb39-15"><a href="#cb39-15"></a><span class="co">#&gt;        U_S1      U_S2 U_S3</span></span>
+<span id="cb39-16"><a href="#cb39-16"></a><span class="co">#&gt; 1 0.8170381 0.5408597    0</span></span>
+<span id="cb39-17"><a href="#cb39-17"></a><span class="co">#&gt; 2 0.7722670 0.4910820    0</span></span>
+<span id="cb39-18"><a href="#cb39-18"></a><span class="co">#&gt; 3 0.8327343 0.5122308    0</span></span>
+<span id="cb39-19"><a href="#cb39-19"></a><span class="co">#&gt; 4 0.7998179 0.5473734    0</span></span>
+<span id="cb39-20"><a href="#cb39-20"></a><span class="co">#&gt; 5 0.8158644 0.4941428    0</span></span>
+<span id="cb39-21"><a href="#cb39-21"></a><span class="co">#&gt; 6 0.7960953 0.4681668    0</span></span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="multi-core-parallel-processing" class="section level1">
+<h1>Multi-core / parallel processing</h1>
+<p>Currently, using multiple cores increases time taken to compute by a factor of around 2. I think this is due to overhead from allocating <em>sims</em> to each core sequentially one by one, whilst each individual calculation has a very quick processing time. This may be solved by sending batches of sims to each core in turn rather than drip-feeding each core sim by sim. I will work on this in the future. The non-functional parallel code is left in psamarkov() for the time being.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
