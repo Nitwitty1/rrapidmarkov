@@ -10,3 +10,11 @@ Ed Wilson
 Norwich, UK
 
 Jan 2021
+
+Installation Instructions
+
+To install this package you will need to use the install_github() function in the devtools package:
+
+install.packages("devtools")
+library(devtools)
+install_github("EdCFWilson/rrapidmarkov")
