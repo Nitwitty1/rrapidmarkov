@@ -1,4 +1,7 @@
 # rrapidmarkov
+
+Has this worked?
+
 R code for quickly running and analysing Markov models in health economic evaluation
 
 I wrote this code in mid 2020 after finding the Markov modelling on HEEMOD rather slow.  HEEMOD is a great package, but rather slow for 'vanilla' Markov models.  I finally got round to uploading this here in January 2021.  
